@@ -1,0 +1,35 @@
+name = "oqotd-api"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+# Custom domain. Requires the zone to be on Cloudflare DNS.
+# If you keep DNS at GoDaddy instead, delete this block and use the
+# oqotd-api.<your-subdomain>.workers.dev URL as API_BASE in the site.
+routes = [
+  { pattern = "api.officequestionoftheday.com", custom_domain = true }
+]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "oqotd"
+database_id = "PASTE_FROM_wrangler_d1_create"
+
+[triggers]
+crons = [
+  "5 0 * * *",   # daily 00:05 UTC — assign today + tomorrow, top up if runway is low
+  "0 9 * * 1"    # Monday 09:00 UTC — draft next week's candidates
+]
+
+[vars]
+MODEL = "claude-sonnet-4-6"
+# Leave false. Generated questions land as drafts for you to approve.
+AUTO_APPROVE = "false"
+# 0=Sunday … 3=Wednesday. One workplace question a week; universal the rest.
+WORKPLACE_WEEKDAY = "3"
+
+# Secrets — never put these in this file:
+#   wrangler secret put ANTHROPIC_API_KEY
+#   wrangler secret put ADMIN_TOKEN
+
+[observability]
+enabled = true

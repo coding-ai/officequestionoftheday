@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Office Question of the Day</title>
+<meta name="description" content="One question for your office, every day. Answer it, then find out whether you're in the minority.">
+<link rel="canonical" href="https://officequestionoftheday.com/">
+<meta property="og:title" content="Office Question of the Day">
+<meta property="og:description" content="One question for your office, every day. Vote, then find out if you're the minority.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://officequestionoftheday.com/">
+<meta property="og:image" content="https://officequestionoftheday.com/og.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#7E827B">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23EDEFEC'/><text x='16' y='24' font-size='22' text-anchor='middle' font-family='sans-serif' fill='%2322201D'>?</text></svg>">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --board:#EDEFEC; --board-deep:#E2E5E0;
+  --marker-black:#22201D; --marker-red:#D6304A; --marker-blue:#1F5FA8; --marker-green:#2E7D52;
+  --trim:#A8ABA4; --trim-dark:#7E827B;
+  --hand:'Permanent Marker','Bradley Hand',cursive;
+  --mono:'DM Mono',ui-monospace,Menlo,monospace;
+  --body:'Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--trim-dark);color:var(--marker-black);font-family:var(--body);
+  -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;justify-content:center;
+  padding:clamp(8px,3vw,40px)}
+.frame{width:100%;max-width:940px;background:var(--trim);border-radius:4px;padding:10px;
+  box-shadow:0 24px 60px rgba(0,0,0,.35)}
+.trim-bar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
+  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
+  color:#33352F;padding:2px 6px 10px}
+.trim-bar b{font-weight:500}
+.trim-bar .right{color:#4B4E47;text-align:right}
+.board{position:relative;overflow:hidden;border-radius:2px;padding:clamp(22px,5vw,54px);
+  background:radial-gradient(120% 90% at 15% 0%,#F4F6F3 0%,var(--board) 45%,var(--board-deep) 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.06)}
+.board::before,.board::after{content:'';position:absolute;pointer-events:none;
+  background:var(--marker-blue);opacity:.045;filter:blur(14px)}
+.board::before{width:44%;height:16px;top:18%;left:-4%;transform:rotate(-2deg)}
+.board::after{width:30%;height:12px;bottom:22%;right:-2%;transform:rotate(1.5deg);
+  background:var(--marker-red);opacity:.04}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--trim-dark);margin:0 0 18px}
+.question{font-family:var(--hand);font-size:clamp(30px,6.4vw,58px);line-height:1.12;
+  margin:0 0 6px;max-width:22ch;text-wrap:balance;min-height:1.1em}
+.question.skeleton{color:transparent;background:linear-gradient(90deg,rgba(34,32,29,.07),rgba(34,32,29,.13),rgba(34,32,29,.07));
+  background-size:200% 100%;animation:shimmer 1.4s linear infinite;border-radius:4px;max-width:16ch}
+@keyframes shimmer{to{background-position:-200% 0}}
+.qmeta{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--trim-dark);
+  margin:0 0 30px;text-transform:uppercase;min-height:1em}
+.options{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 8px}
+.opt{flex:1 1 220px;font-family:var(--hand);font-size:clamp(19px,2.6vw,26px);text-align:left;
+  color:var(--marker-black);background:transparent;border:2.5px solid var(--marker-black);
+  border-radius:26px 20px 24px 22px;padding:16px 24px;cursor:pointer;
+  transition:transform .16s ease,background .16s ease}
+.opt:nth-child(2){border-color:var(--marker-blue);color:var(--marker-blue);border-radius:22px 26px 20px 24px}
+.opt:hover:not(:disabled){transform:translate(-1px,-2px) rotate(-.4deg);background:rgba(34,32,29,.05)}
+.opt:nth-child(2):hover:not(:disabled){background:rgba(31,95,168,.06)}
+.opt:disabled{opacity:.5;cursor:progress}
+.opt:focus-visible{outline:3px dashed var(--marker-red);outline-offset:4px}
+.row{display:grid;grid-template-columns:1fr auto;align-items:end;gap:10px 20px;padding:18px 0;
+  border-bottom:1px solid rgba(34,32,29,.13)}
+.row:first-child{border-top:1px solid rgba(34,32,29,.13)}
+.row-label{font-family:var(--hand);font-size:clamp(18px,2.4vw,24px);line-height:1.2}
+.row.mine .row-label::after{content:' ← you';font-family:var(--mono);font-size:11px;
+  letter-spacing:.12em;color:var(--marker-red);vertical-align:middle}
+.row-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(20px,3vw,30px);white-space:nowrap}
+.tally{grid-column:1/-1;margin-top:2px}
+.tally svg{display:block;width:100%;height:auto;overflow:visible}
+.tally path{stroke:var(--marker-black);stroke-width:2.6;stroke-linecap:round;fill:none;
+  stroke-dasharray:60;stroke-dashoffset:60;animation:draw .34s ease forwards}
+.row:nth-child(2) .tally path{stroke:var(--marker-blue)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.unit{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--trim-dark);
+  text-transform:uppercase;margin-top:14px}
+.verdict{font-family:var(--hand);font-size:clamp(21px,3.4vw,32px);line-height:1.2;
+  margin:30px 0 4px;color:var(--marker-red);max-width:26ch}
+.verdict.majority{color:var(--marker-green)}
+.note{font-family:var(--mono);font-size:12px;color:var(--trim-dark);margin:28px 0 0;line-height:1.6}
+.world{margin:26px 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:12px;color:#2C2F29}
+.world li{display:flex;justify-content:space-between;gap:16px;padding:6px 0;
+  border-bottom:1px dotted rgba(34,32,29,.2)}
+.world .lead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--trim-dark);border:0;padding-bottom:10px}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.btn{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
+  padding:12px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--marker-black);
+  background:var(--marker-black);color:var(--board);transition:opacity .15s ease}
+.btn.ghost{background:transparent;color:var(--marker-black)}
+.btn:hover{opacity:.78}
+.btn:focus-visible{outline:3px dashed var(--marker-red);outline-offset:3px}
+.archive{padding:26px 10px 8px}
+.archive summary{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
+  color:#2E312B;cursor:pointer;padding:6px}
+.past{margin:14px 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:12.5px;color:#2C2F29}
+.past li{display:flex;justify-content:space-between;gap:18px;padding:9px 6px;
+  border-bottom:1px solid rgba(0,0,0,.1)}
+.past .split{white-space:nowrap;font-variant-numeric:tabular-nums;opacity:.8}
+.foot{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:#3A3D36;padding:4px 8px 2px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--marker-black);
+  color:var(--board);font-family:var(--mono);font-size:12px;letter-spacing:.08em;padding:12px 20px;
+  border-radius:2px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+.hidden{display:none!important}
+@media (prefers-reduced-motion:reduce){
+  .tally path{animation:none;stroke-dashoffset:0}
+  .opt:hover{transform:none}
+  .question.skeleton{animation:none}
+}
+</style>
+</head>
+<body>
+<div class="frame">
+  <div class="trim-bar"><b>The Whiteboard</b><span class="right" id="datestamp"></span></div>
+
+  <main class="board">
+    <p class="eyebrow">Office question of the day</p>
+    <h1 class="question skeleton" id="question">Loading</h1>
+    <p class="qmeta" id="qmeta"></p>
+    <div class="options hidden" id="options"></div>
+    <section class="hidden" id="results" aria-live="polite"></section>
+    <div class="actions hidden" id="actions">
+      <button class="btn" id="copyShare">Copy the result</button>
+      <button class="btn ghost" id="copyBoard">Copy for your board</button>
+    </div>
+  </main>
+
+  <details class="archive">
+    <summary>Previous questions</summary>
+    <ul class="past" id="past"><li>Opening the archive…</li></ul>
+  </details>
+
+  <div class="foot">
+    <span id="streak">&nbsp;</span>
+    <span>Anonymous · no accounts · aggregate counts only</span>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =======================================================================
+   CONFIG — point this at your Worker.
+   Custom domain:  https://api.officequestionoftheday.com
+   Or workers.dev: https://oqotd-api.<your-subdomain>.workers.dev
+   ======================================================================= */
+const API_BASE = 'https://api.officequestionoftheday.com';
+
+/* Offline fallback. If the API is unreachable or over quota, the board still
+   shows a real question — it just can't collect the vote. Never show an error
+   page for something whose entire job is to be shared. */
+const FALLBACK = [
+  ['Is “quick call?” with no context a threat?','It’s a threat','Perfectly normal'],
+  ['Reply-all thank-yous are:','Harmless','Criminal'],
+  ['Do you read the all-hands deck before the all-hands?','Yes','Never once'],
+  ['Worse deskmate:','Loud typer','Loud chewer'],
+  ['Is 9:01 late?','It’s late','It’s 9-ish'],
+  ['“Per my last email” is:','Passive aggressive','Simply efficient'],
+  ['Open-plan offices are:','A mistake','Fine'],
+];
+
+const el = id => document.getElementById(id);
+const LS = { client:'oqotd_client', voted:'oqotd_voted', streak:'oqotd_streak', day:'oqotd_day' };
+let state = { qid:null, text:'', a:'', b:'', tally:[0,0], choice:null, live:false, byCountry:[] };
+
+/* client id: a random value used only to stop one browser voting twice.
+   Not linked to anything, never sent anywhere else. */
+function clientId(){
+  let v = localStorage.getItem(LS.client);
+  if (!v){ v = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(16)+Math.random().toString(16).slice(2)); localStorage.setItem(LS.client, v); }
+  return v;
+}
+const votedMap = () => { try { return JSON.parse(localStorage.getItem(LS.voted) || '{}'); } catch { return {}; } };
+const dayNum = () => Math.floor(Date.now()/86400000);
+
+el('datestamp').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
+
+/* ------------------------------------------------------------- rendering */
+function tallySVG(count, unit){
+  const marks = Math.round(count/unit), gap=9, groupGap=16, h=34;
+  let x=2, d='', groups=Math.ceil(marks/5);
+  for (let g=0; g<groups; g++){
+    const inGroup = Math.min(5, marks-g*5), upright = Math.min(4, inGroup), gx = x;
+    for (let i=0;i<upright;i++){ d += `M${(x+(i%2?1.2:-0.8)).toFixed(1)} 4 L${x.toFixed(1)} ${h-3}`; x += gap; }
+    if (inGroup===5) d += `M${(gx-4).toFixed(1)} ${h-6} L${(gx+gap*3+5).toFixed(1)} 6`;
+    x += groupGap;
+  }
+  const w = Math.max(x,40);
+  const paths = d.split('M').filter(Boolean).map((s,i)=>
+    `<path d="M${s}" style="animation-delay:${(i*0.035).toFixed(3)}s"/>`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${count} votes"
+    preserveAspectRatio="xMinYMid meet" style="max-width:${Math.min(w*1.6,520)}px">${paths}</svg>`;
+}
+
+function renderQuestion(){
+  el('question').textContent = state.text;
+  el('question').classList.remove('skeleton');
+  el('qmeta').textContent = state.live ? 'One new question every day' : 'Offline — your vote won’t be counted right now';
+}
+
+function renderOptions(){
+  const box = el('options');
+  box.innerHTML = '';
+  [state.a, state.b].forEach((label,i)=>{
+    const b = document.createElement('button');
+    b.className='opt'; b.type='button'; b.textContent=label;
+    b.addEventListener('click', ()=>vote(i));
+    box.appendChild(b);
+  });
+  box.classList.remove('hidden');
+  el('results').classList.add('hidden');
+}
+
+function renderResults(){
+  const [a,b] = state.tally, total = a+b, box = el('results');
+  box.innerHTML = '';
+  const thin = total < 10;
+  const unit = Math.max(1, Math.ceil(Math.max(a,b)/35));
+
+  [[state.a,a,0],[state.b,b,1]].forEach(([label,n,i])=>{
+    const pct = total ? Math.round(n/total*100) : 0;
+    const row = document.createElement('div');
+    row.className = 'row' + (state.choice===i ? ' mine' : '');
+    row.innerHTML = `<div class="row-label">${label}</div>
+      <div class="row-pct">${thin ? n : pct+'%'}</div>
+      <div class="tally">${tallySVG(n,unit)}</div>`;
+    box.appendChild(row);
+  });
+
+  if (unit>1){ const u=document.createElement('p'); u.className='unit';
+    u.textContent='One mark = '+unit+' votes'; box.appendChild(u); }
+
+  if (thin){
+    const p=document.createElement('p'); p.className='note';
+    p.textContent = total===1
+      ? 'You are the first vote today. Come back later and this will be a real split.'
+      : total+' votes so far — too few to call. Send it to your office and refresh.';
+    box.appendChild(p);
+  } else {
+    const mine = state.choice===0 ? a : b, pct = Math.round(mine/total*100);
+    const v=document.createElement('p');
+    if (pct===50){ v.className='verdict'; v.textContent='Dead even. Nobody wins this one.'; }
+    else if (pct<50){ v.className='verdict'; v.textContent=`You’re in the minority — only ${pct}% agree with you.`; }
+    else { v.className='verdict majority'; v.textContent=`You’re with the ${pct}%.`; }
+    box.appendChild(v);
+    const c=document.createElement('p'); c.className='note';
+    c.textContent = total.toLocaleString() + ' votes counted';
+    box.appendChild(c);
+  }
+
+  if (state.byCountry && state.byCountry.length >= 3){
+    const ul=document.createElement('ul'); ul.className='world';
+    ul.innerHTML = '<li class="lead">How the world split</li>' + state.byCountry.map(c=>
+      `<li><span>${c.country}</span><span>${c.pct_a}% ${escapeAttr(state.a)}</span></li>`).join('');
+    box.appendChild(ul);
+  }
+
+  box.classList.remove('hidden');
+  el('options').classList.add('hidden');
+  el('actions').classList.remove('hidden');
+}
+
+const escapeAttr = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+
+/* ---------------------------------------------------------------- voting */
+async function vote(choice){
+  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
+  state.choice = choice;
+
+  if (!state.live){
+    state.tally[choice]++;                       // local-only, honest about it
+    renderResults();
+    return;
+  }
+
+  try {
+    const res = await fetch(API_BASE + '/api/vote', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ qid: state.qid, choice, client_id: clientId() }),
+    });
+    if (res.status === 409){ location.reload(); return; }   // day rolled over mid-session
+    const data = await res.json();
+    state.tally = data.tally; state.byCountry = data.by_country || [];
+  } catch {
+    state.tally[choice]++;
+    toast('Vote saved locally — the count may be behind');
+  }
+
+  const map = votedMap(); map[state.qid] = choice;
+  localStorage.setItem(LS.voted, JSON.stringify(map).slice(0, 5000));
+  bumpStreak();
+  renderResults();
+}
+
+function bumpStreak(){
+  const d = dayNum(), last = Number(localStorage.getItem(LS.day) || 0);
+  let s = Number(localStorage.getItem(LS.streak) || 0);
+  if (last !== d){ s = last === d-1 ? s+1 : 1; localStorage.setItem(LS.streak, s); localStorage.setItem(LS.day, d); }
+  el('streak').textContent = s>1 ? s+' days in a row' : 'Day 1';
+}
+
+/* --------------------------------------------------------------- sharing */
+function toast(msg){
+  const t=el('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2400);
+}
+async function copy(text,msg){
+  try { await navigator.clipboard.writeText(text); toast(msg); }
+  catch { toast('Copy failed — select the text manually'); }
+}
+el('copyShare').addEventListener('click', ()=>{
+  const total = state.tally[0]+state.tally[1];
+  const mine = state.choice===0 ? state.tally[0] : state.tally[1];
+  const chosen = state.choice===0 ? state.a : state.b;
+  const line = total>=10 ? `${Math.round(mine/total*100)}% of people agree with me.` : 'Still counting.';
+  copy(`Office question of the day\n\n${state.text}\nI said: ${chosen}\n${line}\n\nofficequestionoftheday.com`, 'Result copied');
+});
+el('copyBoard').addEventListener('click', ()=>{
+  copy(`${state.text}\n\nA) ${state.a}\nB) ${state.b}\n\nofficequestionoftheday.com`, 'Copied — go write it on the board');
+});
+
+/* --------------------------------------------------------------- archive */
+let archiveLoaded = false;
+document.querySelector('.archive').addEventListener('toggle', async e=>{
+  if (!e.target.open || archiveLoaded) return;
+  archiveLoaded = true;
+  const list = el('past');
+  try {
+    const res = await fetch(API_BASE + '/api/archive?days=7');
+    const { questions } = await res.json();
+    list.innerHTML = questions.length
+      ? questions.map(q=>{
+          const pa = q.total>=10 ? Math.round(q.tally[0]/q.total*100) : null;
+          return `<li><span>${escapeAttr(q.text)}</span><span class="split">${pa===null?'—':pa+' / '+(100-pa)}</span></li>`;
+        }).join('')
+      : '<li>Nothing archived yet. This fills in as the days pass.</li>';
+  } catch {
+    list.innerHTML = '<li>The archive is unavailable right now. Try again shortly.</li>';
+  }
+});
+
+/* ------------------------------------------------------------------ boot */
+(async function init(){
+  try {
+    const res = await fetch(API_BASE + '/api/today');
+    if (!res.ok) throw new Error(res.status);
+    const d = await res.json();
+    state = { qid:d.qid, text:d.text, a:d.option_a, b:d.option_b,
+              tally:d.tally, choice:null, live:true, byCountry:d.by_country||[] };
+  } catch {
+    const i = dayNum() % FALLBACK.length;
+    const [text,a,b] = FALLBACK[i];
+    state = { qid:'offline-'+i, text, a, b, tally:[0,0], choice:null, live:false, byCountry:[] };
+  }
+
+  renderQuestion();
+  const s = Number(localStorage.getItem(LS.streak) || 0);
+  if (s) el('streak').textContent = s>1 ? s+' days in a row' : 'Day 1';
+
+  const prior = votedMap()[state.qid];
+  if (prior === 0 || prior === 1){ state.choice = prior; renderResults(); }
+  else renderOptions();
+})();
+</script>
+</body>
+</html>
