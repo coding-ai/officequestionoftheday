@@ -5,14 +5,14 @@ compatibility_date = "2026-07-01"
 # Custom domain. Requires the zone to be on Cloudflare DNS.
 # If you keep DNS at GoDaddy instead, delete this block and use the
 # oqotd-api.<your-subdomain>.workers.dev URL as API_BASE in the site.
-routes = [
-  { pattern = "api.officequestionoftheday.com", custom_domain = true }
-]
+#routes = [
+  #{ pattern = "api.officequestionoftheday.com", custom_domain = true }
+#]
 
 [[d1_databases]]
 binding = "DB"
 database_name = "oqotd"
-database_id = "PASTE_FROM_wrangler_d1_create"
+database_id = "1f8b7e9d-c6ff-455e-9d36-2741a104c548"
 
 [triggers]
 crons = [
