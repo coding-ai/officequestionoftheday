@@ -1,14 +1,22 @@
 {
-  "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "d1",
-  "compatibility_date": "2026-08-08",
-  "observability": {
-    "enabled": true
-  },
-  "assets": {
-    "directory": "admin"
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "d1",
+	"compatibility_date": "2026-08-08",
+	"observability": {
+		"enabled": true
+	},
+	"assets": {
+		"directory": "admin"
+	},
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"d1_databases": [
+		{
+			"binding": "oqotd",
+			"database_name": "oqotd",
+			"database_id": "3265096f-738c-4303-ad11-8f0e3120db15",
+			"remote": true
+		}
+	]
 }

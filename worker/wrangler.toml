@@ -12,7 +12,7 @@ routes = [
 [[d1_databases]]
 binding = "DB"
 database_name = "oqotd"
-database_id = "1f8b7e9d-c6ff-455e-9d36-2741a104c548"
+database_id = "3265096f-738c-4303-ad11-8f0e3120db15"
 
 [triggers]
 crons = [
