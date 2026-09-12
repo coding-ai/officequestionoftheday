@@ -1,0 +1,68 @@
+{
+  // This is the ONLY wrangler config for this project.
+  //
+  // Wrangler prefers wrangler.jsonc over wrangler.toml when both exist, and it
+  // does so silently. If a stray toml/json ever appears in this directory,
+  // delete it — two configs is how you end up deploying to a Worker you did
+  // not mean to, with a database binding that does not exist.
+  //
+  // Check what wrangler actually resolved, any time:  wrangler deploy --dry-run
+
+  "name": "oqotd-api",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-01",
+
+  // NOTE: there is deliberately no "assets" block. This Worker is code only.
+  // An assets block makes Cloudflare treat it as a static-site Worker, which
+  // silently disables secrets and tail.
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "oqotd",
+      // Replace with the UUID printed by: wrangler d1 create oqotd
+      "database_id": "PASTE_DATABASE_ID_HERE"
+    }
+  ],
+
+  "triggers": {
+    "crons": [
+      "5 0 * * *", // daily 00:05 UTC — assign today + tomorrow, top up if runway is low
+      "0 9 * * 1", // Monday 09:00 UTC — draft next week's candidates
+      "0 * * * *" // hourly — push to everyone whose local time just hit 9am
+    ]
+  },
+
+  "vars": {
+    "MODEL": "claude-sonnet-4-6",
+    // Leave "false". Generated questions land as drafts for you to approve.
+    "AUTO_APPROVE": "false",
+    // 0=Sunday … 3=Wednesday. One workplace question a week; universal the rest.
+    "WORKPLACE_WEEKDAY": "3",
+    "VAPID_PUBLIC_KEY": "PASTE_PUBLIC_KEY_FROM_keys.mjs",
+    "VAPID_SUBJECT": "mailto:hello@officequestionoftheday.com",
+    // The oqotd-og Worker's URL. Leave empty until stage 7 is deployed:
+    // previews then use the static og.png instead of breaking.
+    "OG_BASE": ""
+  },
+
+  // Secrets are NEVER stored here. Set them with:
+  //   wrangler secret put ADMIN_TOKEN
+  //   wrangler secret put ANTHROPIC_API_KEY
+  //   wrangler secret put VAPID_PRIVATE_JWK     (output of: node keys.mjs)
+  //
+  // VAPID_PUBLIC_KEY is not secret — it ships to every browser. Paste the
+  // public key from keys.mjs into "vars" below.
+
+  // Custom domain for the API. Left out on purpose until the domain is active
+  // on your Cloudflare account — deploying with it too early fails with
+  // "Could not find zone". Add it in stage 6 by uncommenting:
+  //
+  // "routes": [
+  //   { "pattern": "api.officequestionoftheday.com", "custom_domain": true }
+  // ],
+
+  "observability": {
+    "enabled": true
+  }
+}

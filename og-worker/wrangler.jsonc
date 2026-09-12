@@ -1,0 +1,27 @@
+{
+  // Image renderer, deliberately a SEPARATE Worker from the API.
+  // It carries a ~1.9MB wasm rasteriser; keeping it out of the API bundle
+  // means voting stays fast and an image failure can never break the site.
+  //
+  // The ONLY config in this folder. Never add a wrangler.toml beside it.
+  "name": "oqotd-og",
+  "main": "src/index.js",
+  "compatibility_date": "2026-07-01",
+  "compatibility_flags": ["nodejs_compat"],
+
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "oqotd",
+      // Same database as the API — paste the same UUID here.
+      "database_id": "PASTE_DATABASE_ID_HERE"
+    }
+  ],
+
+  // Optional custom domain, once the zone is active on Cloudflare:
+  // "routes": [
+  //   { "pattern": "og.officequestionoftheday.com", "custom_domain": true }
+  // ],
+
+  "observability": { "enabled": true }
+}

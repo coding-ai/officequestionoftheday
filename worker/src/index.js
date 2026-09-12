@@ -18,7 +18,6 @@
 const ALLOWED_ORIGINS = [
   'https://officequestionoftheday.com',
   'https://www.officequestionoftheday.com',
-  'https://coding-ai.github.io',
   'http://localhost:8000',
   'http://127.0.0.1:8000',
 ];
@@ -115,6 +114,37 @@ async function questionForDate(env, date) {
   return await env.DB.prepare(sql).bind(date).first();
 }
 
+/* ── rooms ──────────────────────────────────────────────────────
+   A four-character code a person shares with their team. Alphabet excludes
+   I, L, O, 0 and 1 so a code read aloud or off a whiteboard is unambiguous. */
+const ROOM_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';
+const validRoom = c => typeof c === 'string' && /^[A-HJ-NP-Z2-9]{4}$/.test(c.toUpperCase());
+
+function newRoomCode() {
+  const bytes = crypto.getRandomValues(new Uint8Array(4));
+  return Array.from(bytes, b => ROOM_ALPHABET[b % ROOM_ALPHABET.length]).join('');
+}
+
+async function createRoom(env, name) {
+  // 31^4 ≈ 923k codes. Retry on the rare collision rather than hoping.
+  for (let i = 0; i < 6; i++) {
+    const code = newRoomCode();
+    const res = await env.DB.prepare(
+      'INSERT OR IGNORE INTO rooms (code, name) VALUES (?, ?)'
+    ).bind(code, (name || '').slice(0, 40) || null).run();
+    if (res.meta?.changes === 1) return code;
+  }
+  return null;
+}
+
+async function roomSplit(env, code, qid) {
+  const r = await env.DB.prepare(
+    'SELECT count_a, count_b FROM room_tallies WHERE room_code = ? AND question_id = ?'
+  ).bind(code, qid).first();
+  const a = r?.count_a || 0, b = r?.count_b || 0;
+  return { tally: [a, b], total: a + b };
+}
+
 async function tallyFor(env, qid) {
   const t = await env.DB.prepare(
     'SELECT count_a, count_b FROM tallies WHERE question_id = ?'
@@ -139,13 +169,13 @@ async function countrySplit(env, qid, limit = 8) {
 
 /* --------------------------------------------------------------- handlers */
 
-async function handleToday(env, origin) {
+async function handleToday(env, origin, roomCode) {
   const date = utcDate();
   const q = await questionForDate(env, date);
   if (!q) return json({ error: 'no_question' }, { status: 503, origin });
 
   const [a, b] = await tallyFor(env, q.id);
-  return json({
+  const body = {
     date,
     qid: q.id,
     text: q.text,
@@ -155,7 +185,16 @@ async function handleToday(env, origin) {
     tally: [a, b],
     total: a + b,
     by_country: a + b >= 100 ? await countrySplit(env, q.id) : [],
-  }, { origin, cache: 15 });
+  };
+
+  if (roomCode && validRoom(roomCode)) {
+    const code = roomCode.toUpperCase();
+    const room = await env.DB.prepare('SELECT code, name FROM rooms WHERE code = ?').bind(code).first();
+    if (room) body.room = { code, name: room.name, ...(await roomSplit(env, code, q.id)) };
+  }
+
+  // A room-specific response must not be served from another room's cache.
+  return json(body, { origin, cache: roomCode ? 0 : 15 });
 }
 
 async function handleVote(req, env, origin) {
@@ -165,6 +204,7 @@ async function handleVote(req, env, origin) {
   const choice = Number(body.choice);
   const qid = Number(body.qid);
   const clientId = String(body.client_id || '');
+  const roomCode = validRoom(body.room_code) ? String(body.room_code).toUpperCase() : null;
 
   if (![0, 1].includes(choice) || !Number.isInteger(qid) || qid <= 0) {
     return json({ error: 'bad_request' }, { status: 400, origin });
@@ -188,24 +228,38 @@ async function handleVote(req, env, origin) {
 
   // UNIQUE(question_id, client_id) makes a repeat vote a silent no-op, and the
   // AFTER INSERT trigger keeps every counter in step with the vote rows.
+  // Only attribute the vote to a room that actually exists.
+  let room = null;
+  if (roomCode) {
+    const found = await env.DB.prepare('SELECT code FROM rooms WHERE code = ?').bind(roomCode).first();
+    if (found) room = roomCode;
+  }
+
   await env.DB.prepare(
     `INSERT OR IGNORE INTO votes
-       (question_id, publish_date, choice, country, continent, is_mobile, weekday, hour_utc, client_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
+       (question_id, publish_date, choice, country, continent, is_mobile, weekday, hour_utc, room_code, client_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     qid, date, choice,
     cf.country || null,
     cf.continent || null,
     /Mobile|Android|iPhone/i.test(req.headers.get('User-Agent') || '') ? 1 : 0,
     now.getUTCDay(), now.getUTCHours(),
+    room,
     clientId
   ).run();
 
+  if (room) {
+    await env.DB.prepare("UPDATE rooms SET last_vote = datetime('now') WHERE code = ?").bind(room).run();
+  }
+
   const [a, b] = await tallyFor(env, qid);
-  return json({
+  const out = {
     qid, tally: [a, b], total: a + b,
     by_country: a + b >= 100 ? await countrySplit(env, qid) : [],
-  }, { origin });
+  };
+  if (room) out.room = { code: room, ...(await roomSplit(env, room, qid)) };
+  return json(out, { origin });
 }
 
 async function handleArchive(env, origin, days) {
@@ -438,6 +492,185 @@ async function handleExport(env, url, origin) {
   });
 }
 
+async function handleRoomCreate(req, env, origin) {
+  let body = {};
+  try { body = await req.json(); } catch {}
+  const code = await createRoom(env, body.name);
+  if (!code) return json({ error: 'could_not_allocate' }, { status: 503, origin });
+  return json({ code, name: (body.name || '').slice(0, 40) || null }, { origin });
+}
+
+async function handleRoomGet(env, origin, code) {
+  if (!validRoom(code)) return json({ error: 'bad_code' }, { status: 400, origin });
+  const up = code.toUpperCase();
+  const room = await env.DB.prepare('SELECT code, name FROM rooms WHERE code = ?').bind(up).first();
+  if (!room) return json({ error: 'not_found' }, { status: 404, origin });
+
+  const q = await questionForDate(env, utcDate());
+  const split = q ? await roomSplit(env, up, q.id) : { tally: [0, 0], total: 0 };
+  const members = await env.DB.prepare(
+    'SELECT COUNT(DISTINCT client_id) AS n FROM votes WHERE room_code = ?'
+  ).bind(up).first();
+
+  return json({ code: up, name: room.name, members: members?.n || 0, ...split }, { origin });
+}
+
+/* Share shim.
+   GitHub Pages serves one static HTML file, and social scrapers do not run
+   JavaScript — so a link preview can never show today's question if it points
+   at the site directly. This route returns a tiny page carrying the right
+   Open Graph tags for scrapers, and bounces real browsers to the site. */
+async function handleShare(env, url, date) {
+  const today = utcDate();
+  const d = /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : today;
+
+  const row = await env.DB.prepare(
+    `SELECT q.id, q.text, q.option_a, q.option_b,
+            COALESCE(t.count_a,0) AS a, COALESCE(t.count_b,0) AS b
+       FROM schedule s JOIN questions q ON q.id = s.question_id
+       LEFT JOIN tallies t ON t.question_id = q.id
+      WHERE s.publish_date = ?`
+  ).bind(d).first();
+
+  const site = 'https://officequestionoftheday.com/';
+  if (!row) return Response.redirect(site, 302);
+
+  const total = row.a + row.b;
+  const desc = total >= 10
+    ? `${Math.round(row.a / total * 100)}% say ${row.option_a}. ${total.toLocaleString('en-GB')} votes so far — where do you land?`
+    : `${row.option_a} or ${row.option_b}? Cast your vote.`;
+
+  // The renderer is a separate Worker on another hostname, so its address has
+  // to come from config — url.origin here is the API. Before that Worker is
+  // deployed, fall back to the static image so previews still work.
+  const ogBase = (env.OG_BASE || '').replace(/\/+$/, '');
+  const og = ogBase ? `${ogBase}/og/${d}.png` : 'https://officequestionoftheday.com/og.png';
+  const esc = t => String(t).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+  const html = `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
+<title>${esc(row.text)}</title>
+<meta name="description" content="${esc(desc)}">
+<meta property="og:title" content="${esc(row.text)}">
+<meta property="og:description" content="${esc(desc)}">
+<meta property="og:image" content="${og}">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:type" content="website">
+<meta property="og:url" content="${url.href}">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="${og}">
+<link rel="canonical" href="${site}">
+<meta http-equiv="refresh" content="0; url=${site}">
+</head><body><p>Redirecting to <a href="${site}">officequestionoftheday.com</a></p></body></html>`;
+
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' },
+  });
+}
+
+/* ── web push ───────────────────────────────────────────────────
+   Payload-less: the push carries no data, so there is no aes128gcm
+   encryption layer to get wrong, and the service worker fetches the current
+   question when it wakes. A late notification still shows today's question. */
+
+const b64url = buf => btoa(String.fromCharCode(...new Uint8Array(buf)))
+  .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+
+async function vapidHeaders(env, endpoint) {
+  const jwk = JSON.parse(env.VAPID_PRIVATE_JWK);
+  const key = await crypto.subtle.importKey(
+    'jwk', jwk, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign']
+  );
+  const enc = new TextEncoder();
+  const header = b64url(enc.encode(JSON.stringify({ typ: 'JWT', alg: 'ES256' })));
+  const payload = b64url(enc.encode(JSON.stringify({
+    aud: new URL(endpoint).origin,
+    exp: Math.floor(Date.now() / 1000) + 12 * 3600,
+    sub: env.VAPID_SUBJECT || 'mailto:hello@officequestionoftheday.com',
+  })));
+  const sig = await crypto.subtle.sign(
+    { name: 'ECDSA', hash: 'SHA-256' }, key, enc.encode(header + '.' + payload)
+  );
+  return {
+    'Authorization': `vapid t=${header}.${payload}.${b64url(sig)}, k=${env.VAPID_PUBLIC_KEY}`,
+    'TTL': '10800',                 // drop it rather than deliver hours late
+    'Urgency': 'normal',
+    'Content-Length': '0',
+  };
+}
+
+async function sendPush(env, endpoint) {
+  const res = await fetch(endpoint, { method: 'POST', headers: await vapidHeaders(env, endpoint) });
+  // 404/410 mean the subscription is permanently gone — stop storing it.
+  if (res.status === 404 || res.status === 410) return 'gone';
+  return res.ok ? 'ok' : 'fail';
+}
+
+async function handlePushSubscribe(req, env, origin) {
+  if (!env.VAPID_PRIVATE_JWK) return json({ error: 'push_not_configured' }, { status: 503, origin });
+  let body;
+  try { body = await req.json(); } catch { return json({ error: 'bad_json' }, { status: 400, origin }); }
+
+  const endpoint = String(body.endpoint || '');
+  if (!/^https:\/\/[^\s]{10,600}$/.test(endpoint)) {
+    return json({ error: 'bad_endpoint' }, { status: 400, origin });
+  }
+  // Offset as given by the browser (minutes WEST of UTC), converted to the UTC
+  // hour at which it is 9am for this person.
+  const offsetMin = -Number(body.utc_offset_minutes || 0);
+  if (!Number.isFinite(offsetMin) || Math.abs(offsetMin) > 900) {
+    return json({ error: 'bad_offset' }, { status: 400, origin });
+  }
+  const hour = Math.floor((((9 * 60 - offsetMin) % 1440) + 1440) % 1440 / 60);
+
+  await env.DB.prepare(
+    `INSERT INTO push_subs (endpoint, send_hour_utc) VALUES (?, ?)
+     ON CONFLICT (endpoint) DO UPDATE SET send_hour_utc = excluded.send_hour_utc, fails = 0`
+  ).bind(endpoint, hour).run();
+
+  return json({ ok: true, send_hour_utc: hour }, { origin });
+}
+
+async function handlePushUnsubscribe(req, env, origin) {
+  let body;
+  try { body = await req.json(); } catch { return json({ error: 'bad_json' }, { status: 400, origin }); }
+  await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(String(body.endpoint || '')).run();
+  return json({ ok: true }, { origin });
+}
+
+/** Hourly fan-out: notify everyone for whom it is now roughly 9am. */
+async function runPushHour(env, hourUtc) {
+  if (!env.VAPID_PRIVATE_JWK) return;
+  const { results } = await env.DB.prepare(
+    'SELECT endpoint FROM push_subs WHERE send_hour_utc = ? AND fails < 3 LIMIT 900'
+  ).bind(hourUtc).all();
+  if (!results?.length) return;
+
+  let sent = 0, gone = 0, failed = 0;
+  // Small concurrent batches: kind to subrequest limits, still quick.
+  for (let i = 0; i < results.length; i += 25) {
+    const slice = results.slice(i, i + 25);
+    const outcomes = await Promise.all(slice.map(async r => {
+      try { return [r.endpoint, await sendPush(env, r.endpoint)]; }
+      catch { return [r.endpoint, 'fail']; }
+    }));
+    for (const [endpoint, outcome] of outcomes) {
+      if (outcome === 'gone') {
+        gone++;
+        await env.DB.prepare('DELETE FROM push_subs WHERE endpoint = ?').bind(endpoint).run();
+      } else if (outcome === 'fail') {
+        failed++;
+        await env.DB.prepare('UPDATE push_subs SET fails = fails + 1 WHERE endpoint = ?').bind(endpoint).run();
+      } else {
+        sent++;
+        await env.DB.prepare(
+          "UPDATE push_subs SET last_sent = datetime('now'), fails = 0 WHERE endpoint = ?"
+        ).bind(endpoint).run();
+      }
+    }
+  }
+  await log(env, 'push_hour', { hourUtc, sent, gone, failed });
+}
+
 /* ---------------------------------------------------------------- routing */
 
 export default {
@@ -449,10 +682,24 @@ export default {
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(origin) });
 
     try {
-      if (path === '/api/today' && req.method === 'GET') return await handleToday(env, origin);
+      if (path === '/api/today' && req.method === 'GET')
+        return await handleToday(env, origin, url.searchParams.get('room'));
       if (path === '/api/vote' && req.method === 'POST') return await handleVote(req, env, origin);
       if (path === '/api/archive' && req.method === 'GET')
         return await handleArchive(env, origin, url.searchParams.get('days'));
+
+      if (path === '/api/room' && req.method === 'POST') return await handleRoomCreate(req, env, origin);
+      if (path.startsWith('/api/room/') && req.method === 'GET')
+        return await handleRoomGet(env, origin, path.slice('/api/room/'.length));
+
+      if (path.startsWith('/s/')) return await handleShare(env, url, path.slice(3));
+
+      if (path === '/api/push/subscribe' && req.method === 'POST')
+        return await handlePushSubscribe(req, env, origin);
+      if (path === '/api/push/unsubscribe' && req.method === 'POST')
+        return await handlePushUnsubscribe(req, env, origin);
+      if (path === '/api/push/key' && req.method === 'GET')
+        return json({ key: env.VAPID_PUBLIC_KEY || null }, { origin, cache: 3600 });
 
       if (path.startsWith('/admin')) {
         if (!authed(req, env)) return json({ error: 'unauthorised' }, { status: 401, origin });
@@ -471,6 +718,12 @@ export default {
   },
 
   async scheduled(event, env) {
+    // Hourly: notify everyone for whom it has just turned 9am.
+    if (event.cron === '0 * * * *') {
+      await runPushHour(env, new Date(event.scheduledTime).getUTCHours());
+      return;
+    }
+
     // Pre-assign today and tomorrow so no visitor ever pays the scheduling cost,
     // and so you can see what is going out before it goes out.
     const today = utcDate();

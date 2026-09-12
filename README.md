@@ -5,7 +5,7 @@ One binary question per UTC day, identical for every visitor worldwide, with
 one vote per browser and vote-level data retained for analysis.
 
 ```
-site/           → GitHub Pages (public)
+docs/           → GitHub Pages (public)
 worker/         → Cloudflare Worker + D1 (deployed separately)
 admin/          → question review page — run locally, never publish
 ```
@@ -20,10 +20,10 @@ git add . && git commit -m "Initial build"
 gh repo create officequestionoftheday --public --source=. --push
 ```
 
-In **Settings → Pages**, set the source to `main` branch, folder `/site`.
+In **Settings → Pages**, set the source to `main` branch, folder `/docs`.
 Leave the custom domain field blank for now — step 2 sets it.
 
-> `site/.nojekyll` stops Jekyll processing. `site/CNAME` is already set to
+> `docs/.nojekyll` stops Jekyll processing. `docs/CNAME` is already set to
 > `officequestionoftheday.com`; don't delete it, Pages needs it.
 
 The `admin/` folder is inside the repo but outside the Pages publishing
@@ -55,7 +55,7 @@ needs to answer the certificate challenge itself):
 
 *Staying on GoDaddy DNS instead is fine — same records, in **DNS → Manage Zones**.
 You then can't use `api.officequestionoftheday.com`, so delete the `routes` block
-in `wrangler.toml` and set `API_BASE` in `site/index.html` to the
+in `wrangler.jsonc` and set `API_BASE` in `docs/index.html` to the
 `oqotd-api.<subdomain>.workers.dev` URL that `wrangler deploy` prints.*
 
 ### Order of operations — this one bites people
@@ -87,7 +87,7 @@ minutes of DNS resolving.
 cd worker
 npm install -g wrangler && wrangler login
 
-wrangler d1 create oqotd            # paste database_id into wrangler.toml
+wrangler d1 create oqotd            # paste database_id into wrangler.jsonc
 wrangler d1 execute oqotd --remote --file=./schema.sql
 wrangler d1 execute oqotd --remote --file=./seed.sql
 
@@ -237,14 +237,14 @@ remembering before publishing a chart from it.
 
 ## Deployment checklist
 
-- [ ] `wrangler.toml` — `database_id` filled in
+- [ ] `wrangler.jsonc` — `database_id` filled in
 - [ ] `ANTHROPIC_API_KEY` and `ADMIN_TOKEN` set as secrets, not vars
-- [ ] `site/index.html` — `API_BASE` points at your deployed Worker
-- [ ] `admin/index.html` — `API_BASE` matches; file is **not** in `site/`
+- [ ] `docs/index.html` — `API_BASE` points at your deployed Worker
+- [ ] `admin/index.html` — `API_BASE` matches; file is **not** in `docs/`
 - [ ] Domain verified at GitHub profile level
 - [ ] A, AAAA, and `www` CNAME records resolving
 - [ ] Enforce HTTPS ticked, apex *and* `www` both load over TLS
 - [ ] `curl /api/today` returns a question
 - [ ] Vote once, reload — your choice persists and the tally doesn't double
-- [ ] `og.png` added at `site/og.png` (1200×630) for link previews
+- [ ] `og.png` added at `docs/og.png` (1200×630) for link previews
 - [ ] Workers Paid enabled before any real promotion

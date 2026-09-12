@@ -1,0 +1,17 @@
+{
+  "name": "Office Question of the Day",
+  "short_name": "OQOTD",
+  "description": "One question a day. Find out how far you sit from everyone else.",
+  "start_url": "/?src=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0B0D18",
+  "theme_color": "#0B0D18",
+  "categories": ["social", "entertainment"],
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

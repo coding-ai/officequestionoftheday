@@ -2,373 +2,707 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Office Question of the Day</title>
-<meta name="description" content="One question for your office, every day. Answer it, then find out whether you're in the minority.">
+<meta name="description" content="One question a day. Answer it, then find out how far you sit from everyone else.">
 <link rel="canonical" href="https://officequestionoftheday.com/">
 <meta property="og:title" content="Office Question of the Day">
-<meta property="og:description" content="One question for your office, every day. Vote, then find out if you're the minority.">
+<meta property="og:description" content="One question a day. Find out how far you sit from everyone else.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://officequestionoftheday.com/">
 <meta property="og:image" content="https://officequestionoftheday.com/og.png">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="theme-color" content="#7E827B">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%23EDEFEC'/><text x='16' y='24' font-size='22' text-anchor='middle' font-family='sans-serif' fill='%2322201D'>?</text></svg>">
+<meta name="theme-color" content="#0B0D18">
+
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="OQOTD">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=DM+Mono:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <style>
 :root{
-  --board:#EDEFEC; --board-deep:#E2E5E0;
-  --marker-black:#22201D; --marker-red:#D6304A; --marker-blue:#1F5FA8; --marker-green:#2E7D52;
-  --trim:#A8ABA4; --trim-dark:#7E827B;
-  --hand:'Permanent Marker','Bradley Hand',cursive;
-  --mono:'DM Mono',ui-monospace,Menlo,monospace;
-  --body:'Inter',system-ui,-apple-system,sans-serif;
+  --bg:#0B0D18; --fg:#EEF0F7; --dim:#7C8398; --dimmer:#474D63;
+  --line:rgba(238,240,247,.10); --line-bright:rgba(238,240,247,.24);
+  --a:#FF6B4A; --a-soft:rgba(255,107,74,.16); --a-edge:rgba(255,107,74,.55);
+  --b:#3DD9C4; --b-soft:rgba(61,217,196,.16); --b-edge:rgba(61,217,196,.55);
+  --violet:#8B7BF7;
+  --display:'Space Grotesk',system-ui,sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
 }
-*{box-sizing:border-box}
-html,body{margin:0;padding:0}
-body{background:var(--trim-dark);color:var(--marker-black);font-family:var(--body);
-  -webkit-font-smoothing:antialiased;min-height:100vh;display:flex;justify-content:center;
-  padding:clamp(8px,3vw,40px)}
-.frame{width:100%;max-width:940px;background:var(--trim);border-radius:4px;padding:10px;
-  box-shadow:0 24px 60px rgba(0,0,0,.35)}
-.trim-bar{display:flex;justify-content:space-between;align-items:baseline;gap:16px;
-  font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;
-  color:#33352F;padding:2px 6px 10px}
-.trim-bar b{font-weight:500}
-.trim-bar .right{color:#4B4E47;text-align:right}
-.board{position:relative;overflow:hidden;border-radius:2px;padding:clamp(22px,5vw,54px);
-  background:radial-gradient(120% 90% at 15% 0%,#F4F6F3 0%,var(--board) 45%,var(--board-deep) 100%);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(0,0,0,.06)}
-.board::before,.board::after{content:'';position:absolute;pointer-events:none;
-  background:var(--marker-blue);opacity:.045;filter:blur(14px)}
-.board::before{width:44%;height:16px;top:18%;left:-4%;transform:rotate(-2deg)}
-.board::after{width:30%;height:12px;bottom:22%;right:-2%;transform:rotate(1.5deg);
-  background:var(--marker-red);opacity:.04}
-.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--trim-dark);margin:0 0 18px}
-.question{font-family:var(--hand);font-size:clamp(30px,6.4vw,58px);line-height:1.12;
-  margin:0 0 6px;max-width:22ch;text-wrap:balance;min-height:1.1em}
-.question.skeleton{color:transparent;background:linear-gradient(90deg,rgba(34,32,29,.07),rgba(34,32,29,.13),rgba(34,32,29,.07));
-  background-size:200% 100%;animation:shimmer 1.4s linear infinite;border-radius:4px;max-width:16ch}
-@keyframes shimmer{to{background-position:-200% 0}}
-.qmeta{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--trim-dark);
-  margin:0 0 30px;text-transform:uppercase;min-height:1em}
-.options{display:flex;flex-wrap:wrap;gap:14px;margin:0 0 8px}
-.opt{flex:1 1 220px;font-family:var(--hand);font-size:clamp(19px,2.6vw,26px);text-align:left;
-  color:var(--marker-black);background:transparent;border:2.5px solid var(--marker-black);
-  border-radius:26px 20px 24px 22px;padding:16px 24px;cursor:pointer;
-  transition:transform .16s ease,background .16s ease}
-.opt:nth-child(2){border-color:var(--marker-blue);color:var(--marker-blue);border-radius:22px 26px 20px 24px}
-.opt:hover:not(:disabled){transform:translate(-1px,-2px) rotate(-.4deg);background:rgba(34,32,29,.05)}
-.opt:nth-child(2):hover:not(:disabled){background:rgba(31,95,168,.06)}
-.opt:disabled{opacity:.5;cursor:progress}
-.opt:focus-visible{outline:3px dashed var(--marker-red);outline-offset:4px}
-.row{display:grid;grid-template-columns:1fr auto;align-items:end;gap:10px 20px;padding:18px 0;
-  border-bottom:1px solid rgba(34,32,29,.13)}
-.row:first-child{border-top:1px solid rgba(34,32,29,.13)}
-.row-label{font-family:var(--hand);font-size:clamp(18px,2.4vw,24px);line-height:1.2}
-.row.mine .row-label::after{content:' ← you';font-family:var(--mono);font-size:11px;
-  letter-spacing:.12em;color:var(--marker-red);vertical-align:middle}
-.row-pct{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:clamp(20px,3vw,30px);white-space:nowrap}
-.tally{grid-column:1/-1;margin-top:2px}
-.tally svg{display:block;width:100%;height:auto;overflow:visible}
-.tally path{stroke:var(--marker-black);stroke-width:2.6;stroke-linecap:round;fill:none;
-  stroke-dasharray:60;stroke-dashoffset:60;animation:draw .34s ease forwards}
-.row:nth-child(2) .tally path{stroke:var(--marker-blue)}
-@keyframes draw{to{stroke-dashoffset:0}}
-.unit{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--trim-dark);
-  text-transform:uppercase;margin-top:14px}
-.verdict{font-family:var(--hand);font-size:clamp(21px,3.4vw,32px);line-height:1.2;
-  margin:30px 0 4px;color:var(--marker-red);max-width:26ch}
-.verdict.majority{color:var(--marker-green)}
-.note{font-family:var(--mono);font-size:12px;color:var(--trim-dark);margin:28px 0 0;line-height:1.6}
-.world{margin:26px 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:12px;color:#2C2F29}
-.world li{display:flex;justify-content:space-between;gap:16px;padding:6px 0;
-  border-bottom:1px dotted rgba(34,32,29,.2)}
-.world .lead{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
-  color:var(--trim-dark);border:0;padding-bottom:10px}
-.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
-.btn{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;
-  padding:12px 18px;border-radius:2px;cursor:pointer;border:1px solid var(--marker-black);
-  background:var(--marker-black);color:var(--board);transition:opacity .15s ease}
-.btn.ghost{background:transparent;color:var(--marker-black)}
-.btn:hover{opacity:.78}
-.btn:focus-visible{outline:3px dashed var(--marker-red);outline-offset:3px}
-.archive{padding:26px 10px 8px}
-.archive summary{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;
-  color:#2E312B;cursor:pointer;padding:6px}
-.past{margin:14px 0 0;padding:0;list-style:none;font-family:var(--mono);font-size:12.5px;color:#2C2F29}
-.past li{display:flex;justify-content:space-between;gap:18px;padding:9px 6px;
-  border-bottom:1px solid rgba(0,0,0,.1)}
-.past .split{white-space:nowrap;font-variant-numeric:tabular-nums;opacity:.8}
-.foot{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
-  color:#3A3D36;padding:4px 8px 2px;display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap}
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--marker-black);
-  color:var(--board);font-family:var(--mono);font-size:12px;letter-spacing:.08em;padding:12px 20px;
-  border-radius:2px;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
-.hidden{display:none!important}
-@media (prefers-reduced-motion:reduce){
-  .tally path{animation:none;stroke-dashoffset:0}
-  .opt:hover{transform:none}
-  .question.skeleton{animation:none}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0;min-height:100%;overscroll-behavior:none}
+body{
+  background:var(--bg);color:var(--fg);font-family:var(--mono);
+  -webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 1;
+  position:relative;overflow-x:hidden;
 }
+body::before,body::after{
+  content:'';position:fixed;pointer-events:none;z-index:0;border-radius:50%;filter:blur(90px);
+}
+body::before{width:min(62vw,460px);aspect-ratio:1;top:-14%;left:-14%;
+  background:radial-gradient(circle,rgba(139,123,247,.30),transparent 68%)}
+body::after{width:min(54vw,400px);aspect-ratio:1;bottom:-16%;right:-16%;
+  background:radial-gradient(circle,rgba(61,217,196,.18),transparent 68%)}
+
+.app{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;
+  max-width:680px;margin:0 auto;padding:0 clamp(18px,5vw,28px)}
+
+.head{flex:none;display:flex;justify-content:space-between;align-items:center;height:54px;
+  padding-top:env(safe-area-inset-top);font-size:10px;letter-spacing:.2em;
+  text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line)}
+.head .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--a);
+  margin-right:9px;vertical-align:middle;box-shadow:0 0 10px var(--a);
+  animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
+
+.ask{flex:none;padding:clamp(32px,7vh,58px) 0 clamp(24px,4.5vh,36px)}
+.meta{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dimmer);margin:0 0 16px}
+.q{font-family:var(--display);font-weight:600;font-size:clamp(28px,6.8vw,46px);
+  line-height:1.1;letter-spacing:-.025em;margin:0;max-width:17ch;text-wrap:balance}
+.q.loading{color:rgba(238,240,247,.1)}
+.offline{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer);padding:12px 0 0}
+
+.rows{flex:none;display:flex;flex-direction:column;gap:11px}
+.row{position:relative;overflow:hidden;width:100%;border:1px solid var(--line);border-radius:12px;
+  background:rgba(238,240,247,.025);color:var(--fg);display:flex;align-items:center;
+  justify-content:space-between;gap:14px;
+  padding:clamp(17px,3.3vh,23px) clamp(16px,3.6vw,22px);
+  padding-left:calc(clamp(16px,3.6vw,22px) + 6px);
+  font-family:var(--display);font-weight:500;font-size:clamp(16px,4.1vw,21px);
+  letter-spacing:-.015em;text-align:left;cursor:pointer;
+  transition:border-color .2s ease,transform .12s ease}
+.row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;z-index:2;background:var(--a)}
+#rowB::before{background:var(--b)}
+.row:active{transform:scale(.994)}
+@media (hover:hover){
+  #rowA:not(.locked):hover{border-color:var(--a-edge)}
+  #rowB:not(.locked):hover{border-color:var(--b-edge)}
+}
+.row:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.row.locked{cursor:default}
+.bar{position:absolute;inset:0;width:0;z-index:0;background:var(--a-soft);transition:width 1.05s var(--ease)}
+#rowB .bar{background:var(--b-soft)}
+.row > span:not(.bar){position:relative;z-index:1}
+.row.mine{box-shadow:inset 0 0 0 1px var(--a-edge)}
+#rowB.mine{box-shadow:inset 0 0 0 1px var(--b-edge)}
+.val{font-family:var(--mono);font-weight:500;font-size:15px;color:var(--a);
+  opacity:0;transition:opacity .4s ease .35s;white-space:nowrap}
+#rowB .val{color:var(--b)}
+.revealed .val{opacity:1}
+
+.verdict{flex:none;padding:24px 0 0;opacity:0;transform:translateY(6px);
+  transition:opacity .5s ease .72s,transform .5s var(--ease) .72s}
+.revealed .verdict{opacity:1;transform:none}
+.verdict p{font-family:var(--display);font-weight:500;font-size:clamp(17px,4.3vw,22px);
+  letter-spacing:-.02em;margin:0 0 8px}
+.verdict p.minority{color:var(--a)}
+.verdict p.majority{color:var(--b)}
+.verdict .sub{font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--dimmer);margin:0}
+
+.acts{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
+.btn{border:1px solid var(--line);background:rgba(238,240,247,.03);color:var(--fg);
+  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  padding:12px 18px;border-radius:999px;cursor:pointer;
+  transition:border-color .2s ease,background .2s ease,color .2s ease}
+.btn:hover{border-color:var(--violet);background:rgba(139,123,247,.1)}
+.btn:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.btn.ghost{background:transparent;color:var(--dim)}
+.btn.ghost:hover{color:var(--fg)}
+
+.spacer{flex:1;min-height:28px}
+
+.room{border:1px solid var(--line);border-radius:14px;background:rgba(238,240,247,.022);
+  padding:16px 18px;margin-bottom:12px}
+.room .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);
+  margin:0 0 11px;display:flex;justify-content:space-between;gap:10px}
+.room .k b{font-weight:400;color:var(--violet);letter-spacing:.28em}
+.cmp{display:flex;flex-direction:column;gap:9px}
+.cmp .line{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:11px}
+.cmp .tag{width:50px;flex:none;color:var(--dimmer);letter-spacing:.1em;text-transform:uppercase}
+.cmp .track{flex:1;height:7px;border-radius:4px;background:rgba(238,240,247,.07);overflow:hidden}
+.cmp .fill{height:100%;width:0;background:var(--a);border-radius:4px;transition:width .9s var(--ease)}
+.cmp .num{width:40px;flex:none;text-align:right;color:var(--fg);font-weight:500}
+.room .note{margin:12px 0 0;font-size:10.5px;letter-spacing:.06em;color:var(--dimmer);line-height:1.6}
+.room .note b{color:var(--violet);font-weight:400;letter-spacing:.2em}
+.room .join{display:flex;gap:8px}
+.room input{flex:1;min-width:0;background:rgba(238,240,247,.04);border:1px solid var(--line);
+  border-radius:9px;color:var(--fg);font-family:var(--mono);font-size:15px;
+  letter-spacing:.32em;text-transform:uppercase;padding:11px 13px}
+.room input:focus{outline:none;border-color:var(--violet)}
+.room input::placeholder{letter-spacing:.2em;color:var(--dimmer)}
+.room .sm{padding:11px 15px;font-size:9.5px}
+.linkish{background:none;border:0;padding:0;color:var(--violet);cursor:pointer;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-decoration:underline}
+
+.nudge{border:1px solid rgba(139,123,247,.32);border-radius:14px;
+  background:rgba(139,123,247,.07);padding:15px 17px;margin-bottom:12px;display:none}
+.nudge.show{display:block}
+.nudge p{margin:0 0 12px;font-size:11.5px;letter-spacing:.04em;color:var(--fg);line-height:1.6}
+.nudge .row2{display:flex;gap:8px;flex-wrap:wrap}
+.nudge .no{border-color:transparent;color:var(--dimmer)}
+
+.panel{flex:none;border:1px solid var(--line);border-radius:14px;background:rgba(238,240,247,.022);
+  padding:16px 18px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;
+  gap:12px 18px;align-items:end}
+.stat .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);margin:0 0 7px}
+.stat .v{font-family:var(--mono);font-weight:500;font-size:20px;letter-spacing:-.01em;
+  margin:0;color:var(--violet)}
+.stat .v em{font-style:normal;color:var(--dimmer);font-size:11px;letter-spacing:.08em}
+.stat.right{text-align:right}
+.stat.right .v{color:var(--fg)}
+.gauge{grid-column:1/-1;display:flex;gap:3px;height:4px;margin-top:4px}
+.gauge i{flex:1;background:rgba(238,240,247,.09);border-radius:2px}
+.gauge i.on{background:var(--a);box-shadow:0 0 7px rgba(255,107,74,.5)}
+.gauge i.off{background:rgba(61,217,196,.35)}
+
+.arch{border-top:1px solid var(--line);padding:0 0 calc(16px + env(safe-area-inset-bottom))}
+.arch summary{list-style:none;cursor:pointer;height:46px;display:flex;align-items:center;
+  font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer)}
+.arch summary::-webkit-details-marker{display:none}
+.arch summary:hover{color:var(--dim)}
+.arch ul{list-style:none;margin:0;padding:0 0 8px}
+.arch li{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:12px 0;
+  border-top:1px solid var(--line);font-family:var(--display);font-size:14.5px;color:var(--dim)}
+.arch li .s{font-family:var(--mono);font-size:11px;color:var(--dimmer);white-space:nowrap}
+
+.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(6px);
+  background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:10px;
+  letter-spacing:.14em;text-transform:uppercase;padding:11px 17px;border-radius:999px;
+  opacity:0;pointer-events:none;z-index:30;transition:opacity .2s ease,transform .2s ease}
+.toast.show{opacity:1;transform:translateX(-50%)}
+
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
 </style>
 </head>
 <body>
-<div class="frame">
-  <div class="trim-bar"><b>The Whiteboard</b><span class="right" id="datestamp"></span></div>
 
-  <main class="board">
-    <p class="eyebrow">Office question of the day</p>
-    <h1 class="question skeleton" id="question">Loading</h1>
-    <p class="qmeta" id="qmeta"></p>
-    <div class="options hidden" id="options"></div>
-    <section class="hidden" id="results" aria-live="polite"></section>
-    <div class="actions hidden" id="actions">
-      <button class="btn" id="copyShare">Copy the result</button>
-      <button class="btn ghost" id="copyBoard">Copy for your board</button>
-    </div>
-  </main>
+<div class="app" id="app">
+  <header class="head">
+    <span><span class="dot"></span>Office Question of the Day</span>
+    <span id="date"></span>
+  </header>
 
-  <details class="archive">
-    <summary>Previous questions</summary>
-    <ul class="past" id="past"><li>Opening the archive…</li></ul>
-  </details>
-
-  <div class="foot">
-    <span id="streak">&nbsp;</span>
-    <span>Anonymous · no accounts · aggregate counts only</span>
+  <div class="ask">
+    <p class="meta" id="meta">Loading</p>
+    <h1 class="q loading" id="q">&nbsp;</h1>
+    <p class="offline" id="offline" hidden>Offline — your vote won't be counted</p>
   </div>
+
+  <div class="rows">
+    <button class="row" id="rowA" type="button">
+      <span class="bar" id="barA"></span>
+      <span id="labelA">&nbsp;</span>
+      <span class="val" id="valA"></span>
+    </button>
+    <button class="row" id="rowB" type="button">
+      <span class="bar" id="barB"></span>
+      <span id="labelB">&nbsp;</span>
+      <span class="val" id="valB"></span>
+    </button>
+  </div>
+
+  <div class="verdict" id="verdict">
+    <p id="vLine"></p>
+    <p class="sub" id="vSub"></p>
+    <div class="acts">
+      <button class="btn" id="share" type="button">Share result</button>
+      <button class="btn ghost" id="board" type="button">Copy for your board</button>
+      <button class="btn ghost" id="install" type="button" hidden>Add to home screen</button>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+
+  <section class="nudge" id="nudge">
+    <p id="nudgeText">Want tomorrow’s question? One notification a day, at 9am your time.</p>
+    <div class="row2">
+      <button class="btn" id="nudgeYes" type="button">Notify me</button>
+      <button class="btn ghost no" id="nudgeNo" type="button">No thanks</button>
+    </div>
+  </section>
+
+  <section class="room">
+    <p class="k"><span>Your office</span><b id="roomCode"></b></p>
+    <div id="roomBody"></div>
+  </section>
+
+  <section class="panel">
+    <div class="stat">
+      <p class="k">Contrarian index</p>
+      <p class="v" id="idx">— <em>answer to begin</em></p>
+    </div>
+    <div class="stat right">
+      <p class="k">Next question</p>
+      <p class="v" id="clock">--:--:--</p>
+    </div>
+    <div class="gauge" id="gauge"></div>
+  </section>
+
+  <details class="arch">
+    <summary>Previous questions</summary>
+    <ul id="past"></ul>
+  </details>
 </div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-/* =======================================================================
-   CONFIG — point this at your Worker.
-   Custom domain:  https://api.officequestionoftheday.com
-   Or workers.dev: https://oqotd-api.<your-subdomain>.workers.dev
-   ======================================================================= */
-const API_BASE = 'https://api.officequestionoftheday.com';
+/* ===================================================================
+   CONFIG
+   =================================================================== */
+const API_BASE = 'https://oqotd-api.YOUR-SUBDOMAIN.workers.dev';
+const SITE = 'officequestionoftheday.com';
 
-/* Offline fallback. If the API is unreachable or over quota, the board still
-   shows a real question — it just can't collect the vote. Never show an error
-   page for something whose entire job is to be shared. */
 const FALLBACK = [
-  ['Is “quick call?” with no context a threat?','It’s a threat','Perfectly normal'],
-  ['Reply-all thank-yous are:','Harmless','Criminal'],
-  ['Do you read the all-hands deck before the all-hands?','Yes','Never once'],
-  ['Worse deskmate:','Loud typer','Loud chewer'],
-  ['Is 9:01 late?','It’s late','It’s 9-ish'],
-  ['“Per my last email” is:','Passive aggressive','Simply efficient'],
-  ['Open-plan offices are:','A mistake','Fine'],
+  ['What goes on first?', 'Socks', 'Trousers'],
+  ['Do you sit or stand to put your socks on?', 'Sit down', 'Stand up'],
+  ['Toilet roll hangs:', 'Over the front', 'Under the back'],
+  ['Is a hot dog a sandwich?', 'Yes', 'No'],
+  ['Phone on the table:', 'Face down', 'Face up'],
+  ['Do you cut a sandwich diagonally or straight?', 'Diagonally', 'Straight across'],
+  ['Is "quick call?" with no context a threat?', 'It\u2019s a threat', 'Perfectly normal'],
 ];
 
-const el = id => document.getElementById(id);
-const LS = { client:'oqotd_client', voted:'oqotd_voted', streak:'oqotd_streak', day:'oqotd_day' };
-let state = { qid:null, text:'', a:'', b:'', tally:[0,0], choice:null, live:false, byCountry:[] };
+const $ = id => document.getElementById(id);
+const LS = { client:'oqotd_client', voted:'oqotd_voted', hist:'oqotd_hist', room:'oqotd_room' };
+let S = { qid:null, date:null, text:'', a:'', b:'', tally:[0,0], choice:null, live:false, room:null };
 
-/* client id: a random value used only to stop one browser voting twice.
-   Not linked to anything, never sent anywhere else. */
+const dayNum = () => Math.floor(Date.now() / 86400000);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
 function clientId(){
   let v = localStorage.getItem(LS.client);
-  if (!v){ v = (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(16)+Math.random().toString(16).slice(2)); localStorage.setItem(LS.client, v); }
+  if (!v){
+    v = crypto.randomUUID ? crypto.randomUUID()
+      : Date.now().toString(16) + Math.random().toString(16).slice(2);
+    localStorage.setItem(LS.client, v);
+  }
   return v;
 }
-const votedMap = () => { try { return JSON.parse(localStorage.getItem(LS.voted) || '{}'); } catch { return {}; } };
-const dayNum = () => Math.floor(Date.now()/86400000);
+const read = k => { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch { return null; } };
+const voted = () => read(LS.voted) || {};
+const history = () => read(LS.hist) || { entries: [] };
+const myRoom = () => localStorage.getItem(LS.room) || null;
 
-el('datestamp').textContent = new Date().toLocaleDateString(undefined,{weekday:'long',day:'numeric',month:'long'});
-
-/* ------------------------------------------------------------- rendering */
-function tallySVG(count, unit){
-  const marks = Math.round(count/unit), gap=9, groupGap=16, h=34;
-  let x=2, d='', groups=Math.ceil(marks/5);
-  for (let g=0; g<groups; g++){
-    const inGroup = Math.min(5, marks-g*5), upright = Math.min(4, inGroup), gx = x;
-    for (let i=0;i<upright;i++){ d += `M${(x+(i%2?1.2:-0.8)).toFixed(1)} 4 L${x.toFixed(1)} ${h-3}`; x += gap; }
-    if (inGroup===5) d += `M${(gx-4).toFixed(1)} ${h-6} L${(gx+gap*3+5).toFixed(1)} 6`;
-    x += groupGap;
-  }
-  const w = Math.max(x,40);
-  const paths = d.split('M').filter(Boolean).map((s,i)=>
-    `<path d="M${s}" style="animation-delay:${(i*0.035).toFixed(3)}s"/>`).join('');
-  return `<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="${count} votes"
-    preserveAspectRatio="xMinYMid meet" style="max-width:${Math.min(w*1.6,520)}px">${paths}</svg>`;
+function toast(msg){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('show'), 2200);
 }
 
-function renderQuestion(){
-  el('question').textContent = state.text;
-  el('question').classList.remove('skeleton');
-  el('qmeta').textContent = state.live ? 'One new question every day' : 'Offline — your vote won’t be counted right now';
+/* ===================================================================
+   CONTRARIAN INDEX — the reason to come back
+   =================================================================== */
+function recordOutcome(qid, choice, tally){
+  const h = history();
+  const total = tally[0] + tally[1];
+  const mine = choice === 0 ? tally[0] : tally[1];
+  const resolved = total >= 10;
+  const entry = { qid, day:dayNum(), resolved, minority: resolved ? (mine/total < .5) : null };
+  const i = h.entries.findIndex(e => e.qid === qid);
+  if (i >= 0) h.entries[i] = entry; else h.entries.push(entry);
+  h.entries = h.entries.slice(-60);
+  localStorage.setItem(LS.hist, JSON.stringify(h));
 }
 
-function renderOptions(){
-  const box = el('options');
-  box.innerHTML = '';
-  [state.a, state.b].forEach((label,i)=>{
-    const b = document.createElement('button');
-    b.className='opt'; b.type='button'; b.textContent=label;
-    b.addEventListener('click', ()=>vote(i));
-    box.appendChild(b);
-  });
-  box.classList.remove('hidden');
-  el('results').classList.add('hidden');
+function paintPanel(){
+  const h = history();
+  const resolved = h.entries.filter(e => e.resolved);
+  const minority = resolved.filter(e => e.minority).length;
+  $('idx').innerHTML = resolved.length === 0
+    ? '\u2014 <em>answer to begin</em>'
+    : Math.round(minority / resolved.length * 100) + '% <em>' + minority + ' of ' + resolved.length + '</em>';
+
+  const shown = h.entries.slice(-22);
+  $('gauge').innerHTML = shown.length
+    ? shown.map(e => '<i class="' + (e.resolved ? (e.minority ? 'on' : 'off') : '') + '"></i>').join('')
+    : Array.from({length:22}, () => '<i></i>').join('');
 }
 
-function renderResults(){
-  const [a,b] = state.tally, total = a+b, box = el('results');
-  box.innerHTML = '';
-  const thin = total < 10;
-  const unit = Math.max(1, Math.ceil(Math.max(a,b)/35));
-
-  [[state.a,a,0],[state.b,b,1]].forEach(([label,n,i])=>{
-    const pct = total ? Math.round(n/total*100) : 0;
-    const row = document.createElement('div');
-    row.className = 'row' + (state.choice===i ? ' mine' : '');
-    row.innerHTML = `<div class="row-label">${label}</div>
-      <div class="row-pct">${thin ? n : pct+'%'}</div>
-      <div class="tally">${tallySVG(n,unit)}</div>`;
-    box.appendChild(row);
-  });
-
-  if (unit>1){ const u=document.createElement('p'); u.className='unit';
-    u.textContent='One mark = '+unit+' votes'; box.appendChild(u); }
-
-  if (thin){
-    const p=document.createElement('p'); p.className='note';
-    p.textContent = total===1
-      ? 'You are the first vote today. Come back later and this will be a real split.'
-      : total+' votes so far — too few to call. Send it to your office and refresh.';
-    box.appendChild(p);
-  } else {
-    const mine = state.choice===0 ? a : b, pct = Math.round(mine/total*100);
-    const v=document.createElement('p');
-    if (pct===50){ v.className='verdict'; v.textContent='Dead even. Nobody wins this one.'; }
-    else if (pct<50){ v.className='verdict'; v.textContent=`You’re in the minority — only ${pct}% agree with you.`; }
-    else { v.className='verdict majority'; v.textContent=`You’re with the ${pct}%.`; }
-    box.appendChild(v);
-    const c=document.createElement('p'); c.className='note';
-    c.textContent = total.toLocaleString() + ' votes counted';
-    box.appendChild(c);
-  }
-
-  if (state.byCountry && state.byCountry.length >= 3){
-    const ul=document.createElement('ul'); ul.className='world';
-    ul.innerHTML = '<li class="lead">How the world split</li>' + state.byCountry.map(c=>
-      `<li><span>${c.country}</span><span>${c.pct_a}% ${escapeAttr(state.a)}</span></li>`).join('');
-    box.appendChild(ul);
-  }
-
-  box.classList.remove('hidden');
-  el('options').classList.add('hidden');
-  el('actions').classList.remove('hidden');
+function tick(){
+  const now = new Date();
+  const next = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1);
+  const s = Math.max(0, Math.floor((next - now.getTime()) / 1000));
+  const p = n => String(n).padStart(2,'0');
+  $('clock').textContent = p(Math.floor(s/3600)) + ':' + p(Math.floor(s%3600/60)) + ':' + p(s%60);
 }
+setInterval(tick, 1000); tick();
+$('date').textContent = new Date().toLocaleDateString(undefined,{day:'2-digit',month:'short'}).toUpperCase();
 
-const escapeAttr = s => String(s).replace(/[<>&]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;'}[c]));
+/* ===================================================================
+   OFFICE ROOMS — your office against the world
+   =================================================================== */
+function paintRoom(){
+  const code = myRoom();
+  const body = $('roomBody');
+  $('roomCode').textContent = code || '';
 
-/* ---------------------------------------------------------------- voting */
-async function vote(choice){
-  document.querySelectorAll('.opt').forEach(b => b.disabled = true);
-  state.choice = choice;
-
-  if (!state.live){
-    state.tally[choice]++;                       // local-only, honest about it
-    renderResults();
+  if (!code){
+    body.innerHTML =
+      '<div class="join">' +
+        '<input id="roomInput" maxlength="4" placeholder="CODE" autocomplete="off" ' +
+               'autocapitalize="characters" spellcheck="false">' +
+        '<button class="btn sm" id="roomJoin" type="button">Join</button>' +
+      '</div>' +
+      '<p class="note">See how your office compares with everyone else. ' +
+        '<button class="linkish" id="roomNew" type="button">Create a room</button> ' +
+        'and share the code with your team.</p>';
+    $('roomJoin').addEventListener('click', joinRoom);
+    $('roomNew').addEventListener('click', createRoom);
+    $('roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
     return;
   }
+
+  const rt = S.room ? S.room.tally : [0,0];
+  const rTotal = rt[0] + rt[1];
+  const gTotal = S.tally[0] + S.tally[1];
+
+  if (S.choice === null){
+    body.innerHTML = '<p class="note">Answer today\u2019s question to see how your office compares. ' +
+      'Share code <b>' + code + '</b> with your team.</p>';
+    return;
+  }
+  if (rTotal < 2){
+    body.innerHTML = '<p class="note">' +
+      (rTotal === 1 ? 'Just you so far.' : 'No votes yet.') +
+      ' Send code <b>' + code + '</b> to your colleagues \u2014 the comparison gets ' +
+      'interesting at about five people.</p>';
+    return;
+  }
+
+  const rPct = Math.round(rt[0] / rTotal * 100);
+  const gPct = gTotal ? Math.round(S.tally[0] / gTotal * 100) : 50;
+  const gap = Math.abs(rPct - gPct);
+
+  body.innerHTML =
+    '<div class="cmp">' +
+      '<div class="line"><span class="tag">Office</span>' +
+        '<span class="track"><span class="fill" style="width:' + rPct + '%"></span></span>' +
+        '<span class="num">' + rPct + '%</span></div>' +
+      '<div class="line"><span class="tag">World</span>' +
+        '<span class="track"><span class="fill" style="width:' + gPct + '%;background:var(--dimmer)"></span></span>' +
+        '<span class="num" style="color:var(--dim)">' + gPct + '%</span></div>' +
+    '</div>' +
+    '<p class="note">' + rTotal + ' in your office, ' + rPct + '% for ' + esc(S.a) +
+      (gap >= 15 ? ' \u2014 ' + gap + ' points off the rest of the world.' : '.') + '</p>';
+}
+
+async function joinRoom(){
+  const code = ($('roomInput').value || '').trim().toUpperCase();
+  if (!/^[A-HJ-NP-Z2-9]{4}$/.test(code)){ toast('Four characters, no O or I'); return; }
+  try {
+    const res = await fetch(API_BASE + '/api/room/' + code);
+    if (!res.ok){ toast('No room with that code'); return; }
+    localStorage.setItem(LS.room, code);
+    location.reload();
+  } catch { toast('Could not reach the server'); }
+}
+
+async function createRoom(){
+  try {
+    const res = await fetch(API_BASE + '/api/room', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:'{}',
+    });
+    const d = await res.json();
+    if (!d.code){ toast('Could not create a room'); return; }
+    localStorage.setItem(LS.room, d.code);
+    try {
+      await navigator.clipboard.writeText(
+        'Join my office on Office Question of the Day \u2014 code ' + d.code + '\n' + SITE);
+      toast('Room ' + d.code + ' \u2014 code copied');
+    } catch { toast('Room ' + d.code); }
+    setTimeout(() => location.reload(), 900);
+  } catch { toast('Could not reach the server'); }
+}
+
+/* ===================================================================
+   RENDER
+   =================================================================== */
+function paintQuestion(){
+  $('q').textContent = S.text;
+  $('q').classList.remove('loading');
+  $('labelA').textContent = S.a;
+  $('labelB').textContent = S.b;
+  $('meta').textContent = 'Today \u00b7 one question, two answers';
+  $('offline').hidden = S.live;
+}
+
+function countUp(el, target){
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent = target + '%'; return; }
+  const t0 = performance.now(), dur = 1000;
+  (function step(now){
+    const p = Math.min(1, (now - t0) / dur);
+    el.textContent = Math.round(target * (1 - Math.pow(1-p, 3))) + '%';
+    if (p < 1) requestAnimationFrame(step);
+  })(t0);
+}
+
+function reveal(){
+  const a = S.tally[0], b = S.tally[1], total = a + b, thin = total < 10;
+  const pa = total ? a / total : .5;
+
+  $('barA').style.width = (pa*100).toFixed(1) + '%';
+  $('barB').style.width = ((1-pa)*100).toFixed(1) + '%';
+  $('rowA').classList.add('locked'); $('rowB').classList.add('locked');
+  $('rowA').classList.toggle('mine', S.choice === 0);
+  $('rowB').classList.toggle('mine', S.choice === 1);
+
+  if (thin){
+    $('valA').textContent = a + (a === 1 ? ' vote' : ' votes');
+    $('valB').textContent = b + (b === 1 ? ' vote' : ' votes');
+    $('vLine').className = '';
+    $('vLine').textContent = total === 1 ? 'You\u2019re the first vote today.' : 'Too few votes to call.';
+    $('vSub').textContent = total === 1 ? 'Send it to your office' : total + ' so far \u00b7 check back later';
+  } else {
+    countUp($('valA'), Math.round(pa*100));
+    countUp($('valB'), 100 - Math.round(pa*100));
+    const mine = S.choice === 0 ? a : b;
+    const pct = Math.round(mine / total * 100);
+    $('vLine').className = pct === 50 ? '' : pct < 50 ? 'minority' : 'majority';
+    $('vLine').textContent = pct === 50 ? 'Dead even. Nobody wins this one.'
+                          : pct < 50   ? 'You\u2019re in the minority.'
+                                       : 'You\u2019re with the majority.';
+    $('vSub').textContent = pct + '% agree \u00b7 ' + total.toLocaleString() + ' votes counted';
+  }
+
+  $('app').classList.add('revealed');
+  paintPanel();
+  paintRoom();
+  setTimeout(maybeNudge, 1400);   // after the reveal has landed, not during
+}
+
+/* ===================================================================
+   VOTING
+   =================================================================== */
+async function vote(choice){
+  if (S.choice !== null) return;
+  S.choice = choice;
+  if (navigator.vibrate) navigator.vibrate(8);
+
+  if (!S.live){ S.tally[choice]++; reveal(); return; }
 
   try {
     const res = await fetch(API_BASE + '/api/vote', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ qid: state.qid, choice, client_id: clientId() }),
+      body: JSON.stringify({ qid:S.qid, choice, client_id:clientId(), room_code:myRoom() }),
     });
-    if (res.status === 409){ location.reload(); return; }   // day rolled over mid-session
-    const data = await res.json();
-    state.tally = data.tally; state.byCountry = data.by_country || [];
-  } catch {
-    state.tally[choice]++;
-    toast('Vote saved locally — the count may be behind');
-  }
-
-  const map = votedMap(); map[state.qid] = choice;
-  localStorage.setItem(LS.voted, JSON.stringify(map).slice(0, 5000));
-  bumpStreak();
-  renderResults();
-}
-
-function bumpStreak(){
-  const d = dayNum(), last = Number(localStorage.getItem(LS.day) || 0);
-  let s = Number(localStorage.getItem(LS.streak) || 0);
-  if (last !== d){ s = last === d-1 ? s+1 : 1; localStorage.setItem(LS.streak, s); localStorage.setItem(LS.day, d); }
-  el('streak').textContent = s>1 ? s+' days in a row' : 'Day 1';
-}
-
-/* --------------------------------------------------------------- sharing */
-function toast(msg){
-  const t=el('toast'); t.textContent=msg; t.classList.add('show');
-  clearTimeout(toast._t); toast._t=setTimeout(()=>t.classList.remove('show'),2400);
-}
-async function copy(text,msg){
-  try { await navigator.clipboard.writeText(text); toast(msg); }
-  catch { toast('Copy failed — select the text manually'); }
-}
-el('copyShare').addEventListener('click', ()=>{
-  const total = state.tally[0]+state.tally[1];
-  const mine = state.choice===0 ? state.tally[0] : state.tally[1];
-  const chosen = state.choice===0 ? state.a : state.b;
-  const line = total>=10 ? `${Math.round(mine/total*100)}% of people agree with me.` : 'Still counting.';
-  copy(`Office question of the day\n\n${state.text}\nI said: ${chosen}\n${line}\n\nofficequestionoftheday.com`, 'Result copied');
-});
-el('copyBoard').addEventListener('click', ()=>{
-  copy(`${state.text}\n\nA) ${state.a}\nB) ${state.b}\n\nofficequestionoftheday.com`, 'Copied — go write it on the board');
-});
-
-/* --------------------------------------------------------------- archive */
-let archiveLoaded = false;
-document.querySelector('.archive').addEventListener('toggle', async e=>{
-  if (!e.target.open || archiveLoaded) return;
-  archiveLoaded = true;
-  const list = el('past');
-  try {
-    const res = await fetch(API_BASE + '/api/archive?days=7');
-    const { questions } = await res.json();
-    list.innerHTML = questions.length
-      ? questions.map(q=>{
-          const pa = q.total>=10 ? Math.round(q.tally[0]/q.total*100) : null;
-          return `<li><span>${escapeAttr(q.text)}</span><span class="split">${pa===null?'—':pa+' / '+(100-pa)}</span></li>`;
-        }).join('')
-      : '<li>Nothing archived yet. This fills in as the days pass.</li>';
-  } catch {
-    list.innerHTML = '<li>The archive is unavailable right now. Try again shortly.</li>';
-  }
-});
-
-/* ------------------------------------------------------------------ boot */
-(async function init(){
-  try {
-    const res = await fetch(API_BASE + '/api/today');
-    if (!res.ok) throw new Error(res.status);
+    if (res.status === 409){ location.reload(); return; }
     const d = await res.json();
-    state = { qid:d.qid, text:d.text, a:d.option_a, b:d.option_b,
-              tally:d.tally, choice:null, live:true, byCountry:d.by_country||[] };
+    S.tally = d.tally;
+    if (d.room) S.room = d.room;
+  } catch { S.tally[choice]++; toast('Saved locally'); }
+
+  const m = voted(); m[S.qid] = choice;
+  localStorage.setItem(LS.voted, JSON.stringify(m).slice(0, 6000));
+  recordOutcome(S.qid, choice, S.tally);
+  reveal();
+}
+$('rowA').addEventListener('click', function(){ vote(0); });
+$('rowB').addEventListener('click', function(){ vote(1); });
+
+/* ===================================================================
+   SHARING
+   =================================================================== */
+$('share').addEventListener('click', async () => {
+  const total = S.tally[0] + S.tally[1];
+  const mine = S.choice === 0 ? S.tally[0] : S.tally[1];
+  const chosen = S.choice === 0 ? S.a : S.b;
+  const h = history().entries.filter(e => e.resolved);
+  const idx = h.length ? Math.round(h.filter(e => e.minority).length / h.length * 100) : null;
+
+  let text = S.text + '\nI said: ' + chosen + '.';
+  if (total >= 10) text += ' ' + Math.round(mine/total*100) + '% agree with me.';
+  if (idx !== null && h.length >= 3) text += '\nContrarian index: ' + idx + '%.';
+
+  // Share the shim URL: it carries per-question Open Graph tags, so the
+  // preview shows today's question and its live split. The plain site can't —
+  // it's static HTML and scrapers don't run JavaScript.
+  const link = (S.live && S.date) ? API_BASE + '/s/' + S.date : 'https://' + SITE;
+
+  if (navigator.share){
+    try { await navigator.share({ title:'Office Question of the Day', text, url:link }); return; }
+    catch (e) { /* dismissed */ }
+  }
+  try { await navigator.clipboard.writeText(text + '\n\n' + link); toast('Copied'); }
+  catch { toast('Copy failed'); }
+});
+
+$('board').addEventListener('click', async () => {
+  const code = myRoom();
+  let t = S.text + '\n\nA) ' + S.a + '\nB) ' + S.b + '\n\n' + SITE;
+  if (code) t += '\nOffice code: ' + code;
+  try { await navigator.clipboard.writeText(t); toast('Copied \u2014 go write it up'); }
+  catch { toast('Copy failed'); }
+});
+
+/* ===================================================================
+   ADD TO HOME SCREEN
+   =================================================================== */
+let deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); deferredInstall = e; $('install').hidden = false;
+});
+$('install').addEventListener('click', async () => {
+  if (!deferredInstall){ toast('Share button, then Add to Home Screen'); return; }
+  deferredInstall.prompt();
+  await deferredInstall.userChoice;
+  deferredInstall = null; $('install').hidden = true;
+});
+// iOS fires no install event, so Safari users get the manual hint instead.
+(function(){
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  if (ios && !standalone) $('install').hidden = false;
+})();
+
+if ('serviceWorker' in navigator){
+  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+}
+
+/* ===================================================================
+   NOTIFICATIONS
+
+   The permission prompt is one-shot: a browser "block" is close to permanent
+   and cannot be asked again. So we never call it on a first visit. It appears
+   only after someone has answered on two separate days, and only after a
+   reveal — the moment they have just had the payoff and know what they'd be
+   subscribing to. A soft prompt first, so a "no thanks" costs us nothing.
+   =================================================================== */
+const PUSH = { asked:'oqotd_push_asked', on:'oqotd_push_on' };
+
+function pushSupported(){
+  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+}
+
+function maybeNudge(){
+  if (!pushSupported()) return;
+  if (localStorage.getItem(PUSH.asked) || localStorage.getItem(PUSH.on)) return;
+  if (Notification.permission !== 'default') return;   // already granted or blocked
+
+  // Two separate days of answering before we ask for anything.
+  const days = new Set(history().entries.map(e => e.day));
+  if (days.size < 2) return;
+
+  // iOS only allows push from an installed PWA, so ask them to install first.
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  if (ios && !standalone){
+    $('nudgeText').textContent =
+      'Want tomorrow\u2019s question? Add this to your home screen first \u2014 Share, then Add to Home Screen.';
+    $('nudgeYes').textContent = 'Got it';
+  }
+  $('nudge').classList.add('show');
+}
+
+function urlB64ToUint8(base64){
+  const pad = '='.repeat((4 - base64.length % 4) % 4);
+  const raw = atob((base64 + pad).replace(/-/g, '+').replace(/_/g, '/'));
+  return Uint8Array.from(raw, c => c.charCodeAt(0));
+}
+
+async function enablePush(){
+  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  if (ios && !standalone){
+    localStorage.setItem(PUSH.asked, '1');
+    $('nudge').classList.remove('show');
+    toast('Add to home screen first');
+    return;
+  }
+
+  try {
+    const keyRes = await fetch(API_BASE + '/api/push/key');
+    const { key } = await keyRes.json();
+    if (!key){ toast('Notifications not available yet'); return; }
+
+    const permission = await Notification.requestPermission();
+    localStorage.setItem(PUSH.asked, '1');
+    $('nudge').classList.remove('show');
+    if (permission !== 'granted'){ toast('No notifications then'); return; }
+
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlB64ToUint8(key),
+    });
+
+    await fetch(API_BASE + '/api/push/subscribe', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        endpoint: sub.endpoint,
+        utc_offset_minutes: new Date().getTimezoneOffset(),
+      }),
+    });
+    localStorage.setItem(PUSH.on, '1');
+    toast('You\u2019ll get tomorrow\u2019s question at 9am');
+  } catch {
+    toast('Could not set up notifications');
+  }
+}
+
+$('nudgeYes').addEventListener('click', enablePush);
+$('nudgeNo').addEventListener('click', () => {
+  localStorage.setItem(PUSH.asked, '1');
+  $('nudge').classList.remove('show');
+});
+
+/* ===================================================================
+   ARCHIVE
+   =================================================================== */
+let loaded = false;
+document.querySelector('.arch').addEventListener('toggle', async e => {
+  if (!e.target.open || loaded) return;
+  loaded = true;
+  const list = $('past');
+  list.innerHTML = '<li>Loading\u2026</li>';
+  try {
+    const r = await fetch(API_BASE + '/api/archive?days=7');
+    const data = await r.json();
+    const qs = data.questions || [];
+    list.innerHTML = qs.length ? qs.map(q => {
+      const pa = q.total >= 10 ? Math.round(q.tally[0]/q.total*100) : null;
+      return '<li><span>' + esc(q.text) + '</span><span class="s">' +
+             (pa === null ? '\u2014' : pa + ' / ' + (100-pa)) + '</span></li>';
+    }).join('') : '<li>Nothing here yet \u2014 this fills in daily.</li>';
+  } catch { list.innerHTML = '<li>Archive unavailable.</li>'; }
+});
+
+/* ===================================================================
+   BOOT
+   =================================================================== */
+(async function init(){
+  paintPanel();
+  paintRoom();
+
+  try {
+    const rc = myRoom();
+    const res = await fetch(API_BASE + '/api/today' + (rc ? '?room=' + rc : ''));
+    if (!res.ok) throw new Error('bad status');
+    const d = await res.json();
+    S = { qid:d.qid, date:d.date, text:d.text, a:d.option_a, b:d.option_b,
+          tally:d.tally, choice:null, live:true, room:d.room || null };
   } catch {
     const i = dayNum() % FALLBACK.length;
-    const [text,a,b] = FALLBACK[i];
-    state = { qid:'offline-'+i, text, a, b, tally:[0,0], choice:null, live:false, byCountry:[] };
+    S = { qid:'off-'+i, date:null, text:FALLBACK[i][0], a:FALLBACK[i][1], b:FALLBACK[i][2],
+          tally:[0,0], choice:null, live:false, room:null };
   }
 
-  renderQuestion();
-  const s = Number(localStorage.getItem(LS.streak) || 0);
-  if (s) el('streak').textContent = s>1 ? s+' days in a row' : 'Day 1';
+  paintQuestion();
+  paintRoom();
 
-  const prior = votedMap()[state.qid];
-  if (prior === 0 || prior === 1){ state.choice = prior; renderResults(); }
-  else renderOptions();
+  const prior = voted()[S.qid];
+  if (prior === 0 || prior === 1){
+    S.choice = prior;
+    if (S.live) recordOutcome(S.qid, prior, S.tally);
+    reveal();
+  }
 })();
 </script>
 </body>

@@ -8,7 +8,7 @@
 --                      are where the dataset becomes worth something.
 --
 -- The scheduler runs a workplace question on Wednesdays and universal ones
--- the rest of the week (WORKPLACE_WEEKDAY in wrangler.toml).
+-- the rest of the week (WORKPLACE_WEEKDAY in wrangler.jsonc).
 --
 -- Apply with:  wrangler d1 execute oqotd --remote --file=./seed.sql
 -- ============================================================
