@@ -57,8 +57,12 @@ if grep -q 'PASTE_DATABASE_ID_HERE' wrangler.jsonc 2>/dev/null; then
   fail "database_id is still the placeholder"
   info "wrangler d1 create oqotd   then paste the UUID"
 else
-  cfg=$(sed 's|//.*||' wrangler.jsonc | grep -oE '"database_id"[^,]*' | grep -oE '[0-9a-f-]{36}')
-  live=$(wrangler d1 list 2>/dev/null | grep -oE '[0-9a-f-]{36}' | head -1)
+  cfg=$(sed 's|//.*||' wrangler.jsonc | grep -oE '[0-9a-f]{8}-[0-9a-f-]{27}' | head -1)
+  dupes=$(sed 's|//.*||' wrangler.jsonc | grep -cE '"database_id"')
+  live=$(wrangler d1 list 2>/dev/null | grep -oE '[0-9a-f]{8}-[0-9a-f-]{27}' | head -1)
+  if [ "$dupes" -gt 1 ]; then
+    fail "wrangler.jsonc has $dupes database_id lines — delete all but one"
+  fi
   if [ -n "$cfg" ] && [ "$cfg" = "$live" ]; then
     pass "database_id matches the live oqotd database"
   elif [ -z "$live" ]; then
@@ -68,22 +72,27 @@ else
   fi
 fi
 
-tables=$(wrangler d1 execute oqotd --remote --command \
-  "SELECT COUNT(*) AS n FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'" \
-  2>/dev/null | grep -oE '\b[0-9]+\b' | tail -1)
-if [ "${tables:-0}" -ge 9 ]; then
-  pass "schema applied ($tables tables)"
+# Look for the table NAMES in the output rather than parsing a count — wrangler's
+# output format varies between versions and the timing line contains digits too.
+tbl_out=$(wrangler d1 execute oqotd --remote --command \
+  "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'" 2>/dev/null)
+missing=""
+for t in country_tallies events push_subs questions room_tallies rooms schedule tallies votes; do
+  echo "$tbl_out" | grep -q "\b$t\b" || missing="$missing $t"
+done
+if [ -z "$missing" ]; then
+  pass "schema applied (all 9 tables present)"
 else
-  fail "expected 9 tables, found ${tables:-0}"
+  fail "missing tables:$missing"
   info "wrangler d1 execute oqotd --remote --file=./schema.sql"
 fi
 
-qs=$(wrangler d1 execute oqotd --remote --command "SELECT COUNT(*) AS n FROM questions" \
-  2>/dev/null | grep -oE '\b[0-9]+\b' | tail -1)
-if [ "${qs:-0}" -ge 100 ]; then
-  pass "questions seeded ($qs)"
+q_out=$(wrangler d1 execute oqotd --remote --command \
+  "SELECT genre, COUNT(*) AS n FROM questions GROUP BY genre" 2>/dev/null)
+if echo "$q_out" | grep -q universal && echo "$q_out" | grep -q workplace; then
+  pass "questions seeded (both genres present)"
 else
-  fail "expected 114 questions, found ${qs:-0}"
+  fail "questions not seeded"
   info "wrangler d1 execute oqotd --remote --file=./seed.sql"
 fi
 

@@ -39,7 +39,7 @@ self.addEventListener('fetch', e => {
    so a notification delivered late still shows today's question, and there
    is no message content stored on any push service en route. */
 
-const API_BASE = 'https://oqotd-api.YOUR-SUBDOMAIN.workers.dev';
+const API_BASE = 'https://oqotd-api.officequestionoftheday.workers.dev';
 
 self.addEventListener('push', event => {
   event.waitUntil((async () => {

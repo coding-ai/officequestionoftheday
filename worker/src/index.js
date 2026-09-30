@@ -20,6 +20,7 @@ const ALLOWED_ORIGINS = [
   'https://www.officequestionoftheday.com',
   'http://localhost:8000',
   'http://127.0.0.1:8000',
+  'https://coding-ai.github.io',
 ];
 
 const MIN_QUEUE = 21;          // top up generation when fewer than 3 weeks approved
