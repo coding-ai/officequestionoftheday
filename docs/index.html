@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Office Question of the Day</title>
-<meta name="description" content="One question a day. Answer it, then find out how far you sit from everyone else.">
+<meta name="description" content="One question a day. Answer it, then find out whether you're the odd one out.">
 <link rel="canonical" href="https://officequestionoftheday.com/">
 <meta property="og:title" content="Office Question of the Day">
-<meta property="og:description" content="One question a day. Find out how far you sit from everyone else.">
+<meta property="og:description" content="One question a day. Find out whether you're the odd one out.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://officequestionoftheday.com/">
 <meta property="og:image" content="https://officequestionoftheday.com/og.png">
@@ -28,10 +28,9 @@
 <style>
 :root{
   --bg:#0B0D18; --fg:#EEF0F7; --dim:#7C8398; --dimmer:#474D63;
-  --line:rgba(238,240,247,.10); --line-bright:rgba(238,240,247,.24);
-  --a:#FF6B4A; --a-soft:rgba(255,107,74,.16); --a-edge:rgba(255,107,74,.55);
-  --b:#3DD9C4; --b-soft:rgba(61,217,196,.16); --b-edge:rgba(61,217,196,.55);
-  --violet:#8B7BF7;
+  --line:rgba(238,240,247,.09);
+  --a:#FF6B4A; --a-soft:rgba(255,107,74,.15); --a-edge:rgba(255,107,74,.5);
+  --b:#3DD9C4; --b-soft:rgba(61,217,196,.15); --b-edge:rgba(61,217,196,.5);
   --display:'Space Grotesk',system-ui,sans-serif;
   --mono:'JetBrains Mono',ui-monospace,Menlo,monospace;
   --ease:cubic-bezier(.16,1,.3,1);
@@ -43,41 +42,57 @@ body{
   -webkit-font-smoothing:antialiased;font-feature-settings:"tnum" 1;
   position:relative;overflow-x:hidden;
 }
-body::before,body::after{
-  content:'';position:fixed;pointer-events:none;z-index:0;border-radius:50%;filter:blur(90px);
+/* one soft light source, low opacity — depth without looking like a gradient */
+body::before{
+  content:'';position:fixed;pointer-events:none;z-index:0;border-radius:50%;
+  filter:blur(100px);width:min(70vw,520px);aspect-ratio:1;top:-18%;left:-12%;
+  background:radial-gradient(circle,rgba(139,123,247,.26),transparent 70%);
 }
-body::before{width:min(62vw,460px);aspect-ratio:1;top:-14%;left:-14%;
-  background:radial-gradient(circle,rgba(139,123,247,.30),transparent 68%)}
-body::after{width:min(54vw,400px);aspect-ratio:1;bottom:-16%;right:-16%;
-  background:radial-gradient(circle,rgba(61,217,196,.18),transparent 68%)}
 
-.app{position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;
-  max-width:680px;margin:0 auto;padding:0 clamp(18px,5vw,28px)}
+.app{
+  position:relative;z-index:1;min-height:100dvh;display:flex;flex-direction:column;
+  max-width:560px;margin:0 auto;padding:0 clamp(20px,6vw,28px);
+}
 
-.head{flex:none;display:flex;justify-content:space-between;align-items:center;height:54px;
-  padding-top:env(safe-area-inset-top);font-size:10px;letter-spacing:.2em;
-  text-transform:uppercase;color:var(--dim);border-bottom:1px solid var(--line)}
-.head .dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--a);
-  margin-right:9px;vertical-align:middle;box-shadow:0 0 10px var(--a);
-  animation:pulse 2.6s ease-in-out infinite}
+/* ── header ─────────────────────────────────────── */
+.head{
+  flex:none;display:flex;justify-content:space-between;align-items:center;
+  height:56px;padding-top:env(safe-area-inset-top);
+  font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dim);
+}
+.head .dot{
+  display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--a);
+  margin-right:9px;vertical-align:middle;box-shadow:0 0 9px var(--a);
+  animation:pulse 2.8s ease-in-out infinite;
+}
 @keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}
 
-.ask{flex:none;padding:clamp(32px,7vh,58px) 0 clamp(24px,4.5vh,36px)}
-.meta{font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--dimmer);margin:0 0 16px}
-.q{font-family:var(--display);font-weight:600;font-size:clamp(28px,6.8vw,46px);
-  line-height:1.1;letter-spacing:-.025em;margin:0;max-width:17ch;text-wrap:balance}
-.q.loading{color:rgba(238,240,247,.1)}
-.offline{font-size:9.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--dimmer);padding:12px 0 0}
+/* ── question ───────────────────────────────────── */
+.ask{flex:none;padding:clamp(40px,10vh,80px) 0 clamp(28px,5vh,40px)}
+.q{
+  font-family:var(--display);font-weight:600;
+  font-size:clamp(29px,7.4vw,42px);line-height:1.1;letter-spacing:-.025em;
+  margin:0;text-wrap:balance;
+}
+.q.loading{color:rgba(238,240,247,.08)}
+.offline{
+  font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dimmer);padding:16px 0 0;
+}
 
-.rows{flex:none;display:flex;flex-direction:column;gap:11px}
-.row{position:relative;overflow:hidden;width:100%;border:1px solid var(--line);border-radius:12px;
-  background:rgba(238,240,247,.025);color:var(--fg);display:flex;align-items:center;
-  justify-content:space-between;gap:14px;
-  padding:clamp(17px,3.3vh,23px) clamp(16px,3.6vw,22px);
-  padding-left:calc(clamp(16px,3.6vw,22px) + 6px);
-  font-family:var(--display);font-weight:500;font-size:clamp(16px,4.1vw,21px);
-  letter-spacing:-.015em;text-align:left;cursor:pointer;
-  transition:border-color .2s ease,transform .12s ease}
+/* ── answers ────────────────────────────────────── */
+.rows{flex:none;display:flex;flex-direction:column;gap:10px}
+.row{
+  position:relative;overflow:hidden;width:100%;
+  border:1px solid var(--line);border-radius:12px;
+  background:rgba(238,240,247,.022);color:var(--fg);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:19px 20px 19px 24px;
+  font-family:var(--display);font-weight:500;
+  font-size:clamp(17px,4.4vw,20px);letter-spacing:-.015em;
+  text-align:left;cursor:pointer;
+  transition:border-color .2s ease,transform .12s ease;
+}
 .row::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;z-index:2;background:var(--a)}
 #rowB::before{background:var(--b)}
 .row:active{transform:scale(.994)}
@@ -85,98 +100,116 @@ body::after{width:min(54vw,400px);aspect-ratio:1;bottom:-16%;right:-16%;
   #rowA:not(.locked):hover{border-color:var(--a-edge)}
   #rowB:not(.locked):hover{border-color:var(--b-edge)}
 }
-.row:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.row:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .row.locked{cursor:default}
-.bar{position:absolute;inset:0;width:0;z-index:0;background:var(--a-soft);transition:width 1.05s var(--ease)}
+.bar{position:absolute;inset:0;width:0;z-index:0;background:var(--a-soft);transition:width 1s var(--ease)}
 #rowB .bar{background:var(--b-soft)}
 .row > span:not(.bar){position:relative;z-index:1}
 .row.mine{box-shadow:inset 0 0 0 1px var(--a-edge)}
 #rowB.mine{box-shadow:inset 0 0 0 1px var(--b-edge)}
-.val{font-family:var(--mono);font-weight:500;font-size:15px;color:var(--a);
-  opacity:0;transition:opacity .4s ease .35s;white-space:nowrap}
+.val{
+  font-family:var(--mono);font-weight:500;font-size:15px;color:var(--a);
+  opacity:0;transition:opacity .4s ease .3s;white-space:nowrap;
+}
 #rowB .val{color:var(--b)}
 .revealed .val{opacity:1}
 
-.verdict{flex:none;padding:24px 0 0;opacity:0;transform:translateY(6px);
-  transition:opacity .5s ease .72s,transform .5s var(--ease) .72s}
-.revealed .verdict{opacity:1;transform:none}
-.verdict p{font-family:var(--display);font-weight:500;font-size:clamp(17px,4.3vw,22px);
-  letter-spacing:-.02em;margin:0 0 8px}
-.verdict p.minority{color:var(--a)}
-.verdict p.majority{color:var(--b)}
-.verdict .sub{font-family:var(--mono);font-weight:400;font-size:10.5px;letter-spacing:.14em;
-  text-transform:uppercase;color:var(--dimmer);margin:0}
+/* ── result ─────────────────────────────────────── */
+.result{
+  flex:none;padding:28px 0 0;opacity:0;transform:translateY(6px);
+  transition:opacity .5s ease .7s,transform .5s var(--ease) .7s;
+}
+.revealed .result{opacity:1;transform:none}
+.result h2{
+  font-family:var(--display);font-weight:500;
+  font-size:clamp(18px,4.6vw,23px);letter-spacing:-.02em;margin:0 0 9px;
+}
+.result h2.minority{color:var(--a)}
+.result h2.majority{color:var(--b)}
+.result .sub{
+  font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--dimmer);margin:0;
+}
+/* one plain sentence, only once there is enough history to mean anything */
+.streak{
+  margin:16px 0 0;font-size:11.5px;letter-spacing:.02em;color:var(--dim);
+  line-height:1.6;display:none;
+}
+.streak.show{display:block}
+.streak b{color:var(--fg);font-weight:400}
 
-.acts{display:flex;flex-wrap:wrap;gap:9px;margin-top:20px}
-.btn{border:1px solid var(--line);background:rgba(238,240,247,.03);color:var(--fg);
-  font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
-  padding:12px 18px;border-radius:999px;cursor:pointer;
-  transition:border-color .2s ease,background .2s ease,color .2s ease}
-.btn:hover{border-color:var(--violet);background:rgba(139,123,247,.1)}
-.btn:focus-visible{outline:2px solid var(--violet);outline-offset:2px}
+.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+.btn{
+  border:1px solid var(--line);background:rgba(238,240,247,.03);color:var(--fg);
+  font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;
+  padding:12px 17px;border-radius:999px;cursor:pointer;
+  transition:border-color .2s ease,background .2s ease,color .2s ease;
+}
+.btn:hover{border-color:rgba(238,240,247,.3);background:rgba(238,240,247,.06)}
+.btn:focus-visible{outline:2px solid var(--fg);outline-offset:2px}
 .btn.ghost{background:transparent;color:var(--dim)}
 .btn.ghost:hover{color:var(--fg)}
 
-.spacer{flex:1;min-height:28px}
+.spacer{flex:1;min-height:32px}
 
-.room{border:1px solid var(--line);border-radius:14px;background:rgba(238,240,247,.022);
-  padding:16px 18px;margin-bottom:12px}
-.room .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);
-  margin:0 0 11px;display:flex;justify-content:space-between;gap:10px}
-.room .k b{font-weight:400;color:var(--violet);letter-spacing:.28em}
-.cmp{display:flex;flex-direction:column;gap:9px}
-.cmp .line{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:11px}
-.cmp .tag{width:50px;flex:none;color:var(--dimmer);letter-spacing:.1em;text-transform:uppercase}
-.cmp .track{flex:1;height:7px;border-radius:4px;background:rgba(238,240,247,.07);overflow:hidden}
-.cmp .fill{height:100%;width:0;background:var(--a);border-radius:4px;transition:width .9s var(--ease)}
-.cmp .num{width:40px;flex:none;text-align:right;color:var(--fg);font-weight:500}
-.room .note{margin:12px 0 0;font-size:10.5px;letter-spacing:.06em;color:var(--dimmer);line-height:1.6}
-.room .note b{color:var(--violet);font-weight:400;letter-spacing:.2em}
-.room .join{display:flex;gap:8px}
-.room input{flex:1;min-width:0;background:rgba(238,240,247,.04);border:1px solid var(--line);
+/* ── office comparison: one line until it has something to show ── */
+.office{flex:none;padding:0 0 4px}
+.office .toggle{
+  background:none;border:0;padding:0;color:var(--dim);cursor:pointer;
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;
+}
+.office .toggle:hover{color:var(--fg)}
+.office .panel{display:none;padding-top:14px}
+.office .panel.show{display:block}
+.join{display:flex;gap:8px}
+.join input{
+  flex:1;min-width:0;background:rgba(238,240,247,.04);border:1px solid var(--line);
   border-radius:9px;color:var(--fg);font-family:var(--mono);font-size:15px;
-  letter-spacing:.32em;text-transform:uppercase;padding:11px 13px}
-.room input:focus{outline:none;border-color:var(--violet)}
-.room input::placeholder{letter-spacing:.2em;color:var(--dimmer)}
-.room .sm{padding:11px 15px;font-size:9.5px}
-.linkish{background:none;border:0;padding:0;color:var(--violet);cursor:pointer;
-  font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-decoration:underline}
+  letter-spacing:.3em;text-transform:uppercase;padding:11px 13px;
+}
+.join input:focus{outline:none;border-color:rgba(238,240,247,.35)}
+.join input::placeholder{letter-spacing:.18em;color:var(--dimmer)}
+.hint{margin:11px 0 0;font-size:10.5px;color:var(--dimmer);line-height:1.65}
+.hint b{color:var(--fg);font-weight:400;letter-spacing:.2em}
+.hint .linkish{background:none;border:0;padding:0;color:var(--fg);cursor:pointer;
+  font-family:var(--mono);font-size:10.5px;text-decoration:underline}
+.cmp{display:flex;flex-direction:column;gap:9px}
+.cmp .line{display:flex;align-items:center;gap:11px;font-size:11px}
+.cmp .tag{width:48px;flex:none;color:var(--dimmer);letter-spacing:.1em;text-transform:uppercase}
+.cmp .track{flex:1;height:6px;border-radius:3px;background:rgba(238,240,247,.07);overflow:hidden}
+.cmp .fill{height:100%;width:0;background:var(--a);border-radius:3px;transition:width .9s var(--ease)}
+.cmp .num{width:38px;flex:none;text-align:right;font-weight:500}
 
-.nudge{border:1px solid rgba(139,123,247,.32);border-radius:14px;
-  background:rgba(139,123,247,.07);padding:15px 17px;margin-bottom:12px;display:none}
-.nudge.show{display:block}
-.nudge p{margin:0 0 12px;font-size:11.5px;letter-spacing:.04em;color:var(--fg);line-height:1.6}
-.nudge .row2{display:flex;gap:8px;flex-wrap:wrap}
-.nudge .no{border-color:transparent;color:var(--dimmer)}
+/* ── footer ─────────────────────────────────────── */
+.foot{
+  flex:none;border-top:1px solid var(--line);
+  padding:15px 0 calc(18px + env(safe-area-inset-bottom));
+  display:flex;justify-content:space-between;align-items:center;gap:14px;
+  font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--dimmer);
+}
+.foot .clock{color:var(--dim);font-variant-numeric:tabular-nums}
+.foot .arch{background:none;border:0;padding:0;color:var(--dimmer);cursor:pointer;
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;display:none}
+.foot .arch.show{display:block}
+.foot .arch:hover{color:var(--dim)}
 
-.panel{flex:none;border:1px solid var(--line);border-radius:14px;background:rgba(238,240,247,.022);
-  padding:16px 18px;margin-bottom:14px;display:grid;grid-template-columns:1fr auto;
-  gap:12px 18px;align-items:end}
-.stat .k{font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer);margin:0 0 7px}
-.stat .v{font-family:var(--mono);font-weight:500;font-size:20px;letter-spacing:-.01em;
-  margin:0;color:var(--violet)}
-.stat .v em{font-style:normal;color:var(--dimmer);font-size:11px;letter-spacing:.08em}
-.stat.right{text-align:right}
-.stat.right .v{color:var(--fg)}
-.gauge{grid-column:1/-1;display:flex;gap:3px;height:4px;margin-top:4px}
-.gauge i{flex:1;background:rgba(238,240,247,.09);border-radius:2px}
-.gauge i.on{background:var(--a);box-shadow:0 0 7px rgba(255,107,74,.5)}
-.gauge i.off{background:rgba(61,217,196,.35)}
+.past{
+  display:none;list-style:none;margin:0;padding:0 0 18px;
+  border-top:1px solid var(--line);
+}
+.past.show{display:block}
+.past li{
+  display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:13px 0;
+  border-bottom:1px solid var(--line);font-family:var(--display);font-size:14px;color:var(--dim);
+}
+.past li .s{font-family:var(--mono);font-size:11px;color:var(--dimmer);white-space:nowrap}
 
-.arch{border-top:1px solid var(--line);padding:0 0 calc(16px + env(safe-area-inset-bottom))}
-.arch summary{list-style:none;cursor:pointer;height:46px;display:flex;align-items:center;
-  font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--dimmer)}
-.arch summary::-webkit-details-marker{display:none}
-.arch summary:hover{color:var(--dim)}
-.arch ul{list-style:none;margin:0;padding:0 0 8px}
-.arch li{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:12px 0;
-  border-top:1px solid var(--line);font-family:var(--display);font-size:14.5px;color:var(--dim)}
-.arch li .s{font-family:var(--mono);font-size:11px;color:var(--dimmer);white-space:nowrap}
-
-.toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%) translateY(6px);
+.toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(6px);
   background:var(--fg);color:var(--bg);font-family:var(--mono);font-size:10px;
-  letter-spacing:.14em;text-transform:uppercase;padding:11px 17px;border-radius:999px;
-  opacity:0;pointer-events:none;z-index:30;transition:opacity .2s ease,transform .2s ease}
+  letter-spacing:.12em;text-transform:uppercase;padding:11px 17px;border-radius:999px;
+  opacity:0;pointer-events:none;z-index:30;transition:opacity .2s ease,transform .2s ease;
+}
 .toast.show{opacity:1;transform:translateX(-50%)}
 
 @media (prefers-reduced-motion:reduce){*{transition-duration:.01ms!important;animation:none!important}}
@@ -191,7 +224,6 @@ body::after{width:min(54vw,400px);aspect-ratio:1;bottom:-16%;right:-16%;
   </header>
 
   <div class="ask">
-    <p class="meta" id="meta">Loading</p>
     <h1 class="q loading" id="q">&nbsp;</h1>
     <p class="offline" id="offline" hidden>Offline — your vote won't be counted</p>
   </div>
@@ -209,11 +241,12 @@ body::after{width:min(54vw,400px);aspect-ratio:1;bottom:-16%;right:-16%;
     </button>
   </div>
 
-  <div class="verdict" id="verdict">
-    <p id="vLine"></p>
-    <p class="sub" id="vSub"></p>
+  <div class="result" id="result">
+    <h2 id="verdict"></h2>
+    <p class="sub" id="detail"></p>
+    <p class="streak" id="streak"></p>
     <div class="acts">
-      <button class="btn" id="share" type="button">Share result</button>
+      <button class="btn" id="share" type="button">Share</button>
       <button class="btn ghost" id="board" type="button">Copy for your board</button>
       <button class="btn ghost" id="install" type="button" hidden>Add to home screen</button>
     </div>
@@ -221,35 +254,17 @@ body::after{width:min(54vw,400px);aspect-ratio:1;bottom:-16%;right:-16%;
 
   <div class="spacer"></div>
 
-  <section class="nudge" id="nudge">
-    <p id="nudgeText">Want tomorrow’s question? One notification a day, at 9am your time.</p>
-    <div class="row2">
-      <button class="btn" id="nudgeYes" type="button">Notify me</button>
-      <button class="btn ghost no" id="nudgeNo" type="button">No thanks</button>
-    </div>
+  <section class="office">
+    <button class="toggle" id="officeToggle" type="button">Compare with your office →</button>
+    <div class="panel" id="officePanel"></div>
   </section>
 
-  <section class="room">
-    <p class="k"><span>Your office</span><b id="roomCode"></b></p>
-    <div id="roomBody"></div>
-  </section>
+  <ul class="past" id="past"></ul>
 
-  <section class="panel">
-    <div class="stat">
-      <p class="k">Contrarian index</p>
-      <p class="v" id="idx">— <em>answer to begin</em></p>
-    </div>
-    <div class="stat right">
-      <p class="k">Next question</p>
-      <p class="v" id="clock">--:--:--</p>
-    </div>
-    <div class="gauge" id="gauge"></div>
-  </section>
-
-  <details class="arch">
-    <summary>Previous questions</summary>
-    <ul id="past"></ul>
-  </details>
+  <footer class="foot">
+    <button class="arch" id="archToggle" type="button">Previous</button>
+    <span>Next question <span class="clock" id="clock">--:--:--</span></span>
+  </footer>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -268,7 +283,7 @@ const FALLBACK = [
   ['Is a hot dog a sandwich?', 'Yes', 'No'],
   ['Phone on the table:', 'Face down', 'Face up'],
   ['Do you cut a sandwich diagonally or straight?', 'Diagonally', 'Straight across'],
-  ['Is "quick call?" with no context a threat?', 'It\u2019s a threat', 'Perfectly normal'],
+  ['Is "quick call?" with no context a threat?', 'It’s a threat', 'Perfectly normal'],
 ];
 
 const $ = id => document.getElementById(id);
@@ -298,7 +313,34 @@ function toast(msg){
 }
 
 /* ===================================================================
-   CONTRARIAN INDEX — the reason to come back
+   PREVIEW MODE — local only, never touches the server.
+   Open index.html?preview=minority (or majority, veteran, room, thin)
+   to see a filled-in state without deploying anything.
+   =================================================================== */
+const PREVIEW = new URLSearchParams(location.search).get('preview');
+
+function previewState(kind){
+  const seed = { qid:'preview', date:'2026-09-30',
+    text:'Do you sit or stand to put your socks on?', a:'Sit down', b:'Stand up',
+    live:true, room:null, choice:null, tally:[0,0] };
+  if (kind === 'thin')      return { ...seed, tally:[3,1], choice:0 };
+  if (kind === 'minority')  return { ...seed, tally:[1204,712], choice:1 };
+  if (kind === 'majority')  return { ...seed, tally:[1204,712], choice:0 };
+  if (kind === 'veteran')   return { ...seed, tally:[1204,712], choice:1 };
+  if (kind === 'room')      return { ...seed, tally:[1204,712], choice:0,
+                                     room:{ code:'K7QM', tally:[8,2], total:10 } };
+  return seed;
+}
+function previewHistory(kind){
+  if (kind !== 'veteran' && kind !== 'minority') return null;
+  const d = dayNum();
+  const pattern = [1,0,1,1,0,1,0,1,1,0,1,1];
+  return { entries: pattern.map((m,i) => ({ qid:'p'+i, day:d-(pattern.length-i),
+    resolved:true, minority: !!m })) };
+}
+
+/* ===================================================================
+   HISTORY — one plain sentence, only once it means something
    =================================================================== */
 function recordOutcome(qid, choice, tally){
   const h = history();
@@ -312,18 +354,20 @@ function recordOutcome(qid, choice, tally){
   localStorage.setItem(LS.hist, JSON.stringify(h));
 }
 
-function paintPanel(){
-  const h = history();
+let previewHist = null;
+function paintStreak(){
+  const h = previewHist || history();
   const resolved = h.entries.filter(e => e.resolved);
-  const minority = resolved.filter(e => e.minority).length;
-  $('idx').innerHTML = resolved.length === 0
-    ? '\u2014 <em>answer to begin</em>'
-    : Math.round(minority / resolved.length * 100) + '% <em>' + minority + ' of ' + resolved.length + '</em>';
-
-  const shown = h.entries.slice(-22);
-  $('gauge').innerHTML = shown.length
-    ? shown.map(e => '<i class="' + (e.resolved ? (e.minority ? 'on' : 'off') : '') + '"></i>').join('')
-    : Array.from({length:22}, () => '<i></i>').join('');
+  // Below three answers this is noise, so it simply does not appear.
+  if (resolved.length < 3){ $('streak').classList.remove('show'); return; }
+  const odd = resolved.filter(e => e.minority).length;
+  const pct = Math.round(odd / resolved.length * 100);
+  const tail = pct >= 60 ? ' You disagree with people more often than not.'
+             : pct <= 25 ? ' You are reliably normal.'
+             : '';
+  $('streak').innerHTML =
+    'You’ve been the odd one out <b>' + odd + ' of ' + resolved.length + '</b> times.' + tail;
+  $('streak').classList.add('show');
 }
 
 function tick(){
@@ -337,51 +381,59 @@ setInterval(tick, 1000); tick();
 $('date').textContent = new Date().toLocaleDateString(undefined,{day:'2-digit',month:'short'}).toUpperCase();
 
 /* ===================================================================
-   OFFICE ROOMS — your office against the world
+   OFFICE — collapsed to a single line until it has something to say
    =================================================================== */
-function paintRoom(){
-  const code = myRoom();
-  const body = $('roomBody');
-  $('roomCode').textContent = code || '';
+$('officeToggle').addEventListener('click', () => {
+  const p = $('officePanel');
+  p.classList.toggle('show');
+  $('officeToggle').textContent = p.classList.contains('show')
+    ? 'Compare with your office ↓' : 'Compare with your office →';
+});
+
+function paintOffice(){
+  const code = myRoom() || (S.room && S.room.code);
+  const panel = $('officePanel');
+  const rt = S.room ? S.room.tally : [0,0];
+  const rTotal = rt[0] + rt[1];
 
   if (!code){
-    body.innerHTML =
+    $('officeToggle').textContent = 'Compare with your office →';
+    panel.innerHTML =
       '<div class="join">' +
         '<input id="roomInput" maxlength="4" placeholder="CODE" autocomplete="off" ' +
                'autocapitalize="characters" spellcheck="false">' +
-        '<button class="btn sm" id="roomJoin" type="button">Join</button>' +
+        '<button class="btn" id="roomJoin" type="button">Join</button>' +
       '</div>' +
-      '<p class="note">See how your office compares with everyone else. ' +
-        '<button class="linkish" id="roomNew" type="button">Create a room</button> ' +
-        'and share the code with your team.</p>';
+      '<p class="hint">Everyone with the same code sees how your office answered ' +
+        'against the rest of the world. ' +
+        '<button class="linkish" id="roomNew" type="button">Create one</button>.</p>';
     $('roomJoin').addEventListener('click', joinRoom);
     $('roomNew').addEventListener('click', createRoom);
     $('roomInput').addEventListener('keydown', e => { if (e.key === 'Enter') joinRoom(); });
     return;
   }
 
-  const rt = S.room ? S.room.tally : [0,0];
-  const rTotal = rt[0] + rt[1];
-  const gTotal = S.tally[0] + S.tally[1];
+  // In a room: promote it out of the collapsed state, it now has content.
+  $('officeToggle').textContent = 'Your office · ' + code;
 
   if (S.choice === null){
-    body.innerHTML = '<p class="note">Answer today\u2019s question to see how your office compares. ' +
-      'Share code <b>' + code + '</b> with your team.</p>';
+    panel.innerHTML = '<p class="hint">Answer today’s question to see how your office compares. ' +
+      'Code <b>' + code + '</b>.</p>';
     return;
   }
   if (rTotal < 2){
-    body.innerHTML = '<p class="note">' +
-      (rTotal === 1 ? 'Just you so far.' : 'No votes yet.') +
-      ' Send code <b>' + code + '</b> to your colleagues \u2014 the comparison gets ' +
-      'interesting at about five people.</p>';
+    panel.innerHTML = '<p class="hint">' + (rTotal === 1 ? 'Just you so far.' : 'No votes yet.') +
+      ' Send code <b>' + code + '</b> to your colleagues — it gets interesting at about five.</p>';
+    panel.classList.add('show');
     return;
   }
 
+  const gTotal = S.tally[0] + S.tally[1];
   const rPct = Math.round(rt[0] / rTotal * 100);
   const gPct = gTotal ? Math.round(S.tally[0] / gTotal * 100) : 50;
   const gap = Math.abs(rPct - gPct);
 
-  body.innerHTML =
+  panel.innerHTML =
     '<div class="cmp">' +
       '<div class="line"><span class="tag">Office</span>' +
         '<span class="track"><span class="fill" style="width:' + rPct + '%"></span></span>' +
@@ -390,8 +442,9 @@ function paintRoom(){
         '<span class="track"><span class="fill" style="width:' + gPct + '%;background:var(--dimmer)"></span></span>' +
         '<span class="num" style="color:var(--dim)">' + gPct + '%</span></div>' +
     '</div>' +
-    '<p class="note">' + rTotal + ' in your office, ' + rPct + '% for ' + esc(S.a) +
-      (gap >= 15 ? ' \u2014 ' + gap + ' points off the rest of the world.' : '.') + '</p>';
+    '<p class="hint">' + rTotal + ' in your office, ' + rPct + '% for ' + esc(S.a) +
+      (gap >= 15 ? ' — ' + gap + ' points off everyone else.' : '.') + '</p>';
+  panel.classList.add('show');
 }
 
 async function joinRoom(){
@@ -415,8 +468,8 @@ async function createRoom(){
     localStorage.setItem(LS.room, d.code);
     try {
       await navigator.clipboard.writeText(
-        'Join my office on Office Question of the Day \u2014 code ' + d.code + '\n' + SITE);
-      toast('Room ' + d.code + ' \u2014 code copied');
+        'Join my office on Office Question of the Day — code ' + d.code + '\n' + SITE);
+      toast('Room ' + d.code + ' — copied');
     } catch { toast('Room ' + d.code); }
     setTimeout(() => location.reload(), 900);
   } catch { toast('Could not reach the server'); }
@@ -430,13 +483,12 @@ function paintQuestion(){
   $('q').classList.remove('loading');
   $('labelA').textContent = S.a;
   $('labelB').textContent = S.b;
-  $('meta').textContent = 'Today \u00b7 one question, two answers';
   $('offline').hidden = S.live;
 }
 
 function countUp(el, target){
   if (matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent = target + '%'; return; }
-  const t0 = performance.now(), dur = 1000;
+  const t0 = performance.now(), dur = 950;
   (function step(now){
     const p = Math.min(1, (now - t0) / dur);
     el.textContent = Math.round(target * (1 - Math.pow(1-p, 3))) + '%';
@@ -457,25 +509,25 @@ function reveal(){
   if (thin){
     $('valA').textContent = a + (a === 1 ? ' vote' : ' votes');
     $('valB').textContent = b + (b === 1 ? ' vote' : ' votes');
-    $('vLine').className = '';
-    $('vLine').textContent = total === 1 ? 'You\u2019re the first vote today.' : 'Too few votes to call.';
-    $('vSub').textContent = total === 1 ? 'Send it to your office' : total + ' so far \u00b7 check back later';
+    $('verdict').className = '';
+    $('verdict').textContent = total === 1 ? 'You’re the first vote today.' : 'Too few votes to call.';
+    $('detail').textContent = total === 1 ? 'Send it to your office' : total + ' so far · check back later';
   } else {
     countUp($('valA'), Math.round(pa*100));
     countUp($('valB'), 100 - Math.round(pa*100));
     const mine = S.choice === 0 ? a : b;
     const pct = Math.round(mine / total * 100);
-    $('vLine').className = pct === 50 ? '' : pct < 50 ? 'minority' : 'majority';
-    $('vLine').textContent = pct === 50 ? 'Dead even. Nobody wins this one.'
-                          : pct < 50   ? 'You\u2019re in the minority.'
-                                       : 'You\u2019re with the majority.';
-    $('vSub').textContent = pct + '% agree \u00b7 ' + total.toLocaleString() + ' votes counted';
+    $('verdict').className = pct === 50 ? '' : pct < 50 ? 'minority' : 'majority';
+    $('verdict').textContent = pct === 50 ? 'Dead even. Nobody wins this one.'
+                             : pct < 50   ? 'You’re the odd one out.'
+                                          : 'You’re with the majority.';
+    $('detail').textContent = pct + '% agree · ' + total.toLocaleString() + ' votes';
   }
 
   $('app').classList.add('revealed');
-  paintPanel();
-  paintRoom();
-  setTimeout(maybeNudge, 1400);   // after the reveal has landed, not during
+  paintStreak();
+  paintOffice();
+  setTimeout(maybeNudge, 1500);
 }
 
 /* ===================================================================
@@ -486,7 +538,7 @@ async function vote(choice){
   S.choice = choice;
   if (navigator.vibrate) navigator.vibrate(8);
 
-  if (!S.live){ S.tally[choice]++; reveal(); return; }
+  if (PREVIEW || !S.live){ S.tally[choice]++; reveal(); return; }
 
   try {
     const res = await fetch(API_BASE + '/api/vote', {
@@ -514,17 +566,17 @@ $('share').addEventListener('click', async () => {
   const total = S.tally[0] + S.tally[1];
   const mine = S.choice === 0 ? S.tally[0] : S.tally[1];
   const chosen = S.choice === 0 ? S.a : S.b;
-  const h = history().entries.filter(e => e.resolved);
-  const idx = h.length ? Math.round(h.filter(e => e.minority).length / h.length * 100) : null;
+  const h = (previewHist || history()).entries.filter(e => e.resolved);
+  const odd = h.filter(e => e.minority).length;
 
   let text = S.text + '\nI said: ' + chosen + '.';
   if (total >= 10) text += ' ' + Math.round(mine/total*100) + '% agree with me.';
-  if (idx !== null && h.length >= 3) text += '\nContrarian index: ' + idx + '%.';
+  if (h.length >= 3) text += '\nOdd one out ' + odd + ' of ' + h.length + ' times.';
 
-  // Share the shim URL: it carries per-question Open Graph tags, so the
-  // preview shows today's question and its live split. The plain site can't —
-  // it's static HTML and scrapers don't run JavaScript.
-  const link = (S.live && S.date) ? API_BASE + '/s/' + S.date : 'https://' + SITE;
+  // The shim URL carries per-question Open Graph tags, so the preview shows
+  // today's question. The plain site can't — it's static and scrapers don't
+  // run JavaScript.
+  const link = (S.live && S.date && !PREVIEW) ? API_BASE + '/s/' + S.date : 'https://' + SITE;
 
   if (navigator.share){
     try { await navigator.share({ title:'Office Question of the Day', text, url:link }); return; }
@@ -538,12 +590,12 @@ $('board').addEventListener('click', async () => {
   const code = myRoom();
   let t = S.text + '\n\nA) ' + S.a + '\nB) ' + S.b + '\n\n' + SITE;
   if (code) t += '\nOffice code: ' + code;
-  try { await navigator.clipboard.writeText(t); toast('Copied \u2014 go write it up'); }
+  try { await navigator.clipboard.writeText(t); toast('Copied — go write it up'); }
   catch { toast('Copy failed'); }
 });
 
 /* ===================================================================
-   ADD TO HOME SCREEN
+   ADD TO HOME SCREEN + NOTIFICATIONS
    =================================================================== */
 let deferredInstall = null;
 window.addEventListener('beforeinstallprompt', e => {
@@ -555,7 +607,6 @@ $('install').addEventListener('click', async () => {
   await deferredInstall.userChoice;
   deferredInstall = null; $('install').hidden = true;
 });
-// iOS fires no install event, so Safari users get the manual hint instead.
 (function(){
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
@@ -566,39 +617,26 @@ if ('serviceWorker' in navigator){
   window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
 }
 
-/* ===================================================================
-   NOTIFICATIONS
-
-   The permission prompt is one-shot: a browser "block" is close to permanent
-   and cannot be asked again. So we never call it on a first visit. It appears
-   only after someone has answered on two separate days, and only after a
-   reveal — the moment they have just had the payoff and know what they'd be
-   subscribing to. A soft prompt first, so a "no thanks" costs us nothing.
-   =================================================================== */
+/* The permission prompt is one-shot — a browser "block" is close to permanent.
+   So it waits for two separate days of answering, and appears after a reveal. */
 const PUSH = { asked:'oqotd_push_asked', on:'oqotd_push_on' };
 
-function pushSupported(){
-  return 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
-}
-
 function maybeNudge(){
-  if (!pushSupported()) return;
+  if (PREVIEW) return;
+  if (!('serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window)) return;
   if (localStorage.getItem(PUSH.asked) || localStorage.getItem(PUSH.on)) return;
-  if (Notification.permission !== 'default') return;   // already granted or blocked
+  if (Notification.permission !== 'default') return;
+  if (new Set(history().entries.map(e => e.day)).size < 2) return;
 
-  // Two separate days of answering before we ask for anything.
-  const days = new Set(history().entries.map(e => e.day));
-  if (days.size < 2) return;
-
-  // iOS only allows push from an installed PWA, so ask them to install first.
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
-  if (ios && !standalone){
-    $('nudgeText').textContent =
-      'Want tomorrow\u2019s question? Add this to your home screen first \u2014 Share, then Add to Home Screen.';
-    $('nudgeYes').textContent = 'Got it';
-  }
-  $('nudge').classList.add('show');
+  if (ios && !standalone) return;   // Safari needs the PWA installed first
+
+  const b = document.createElement('button');
+  b.className = 'btn';
+  b.textContent = 'Remind me tomorrow';
+  b.addEventListener('click', enablePush);
+  document.querySelector('.acts').appendChild(b);
 }
 
 function urlB64ToUint8(base64){
@@ -608,78 +646,68 @@ function urlB64ToUint8(base64){
 }
 
 async function enablePush(){
-  const ios = /iPad|iPhone|iPod/.test(navigator.userAgent);
-  const standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
-  if (ios && !standalone){
-    localStorage.setItem(PUSH.asked, '1');
-    $('nudge').classList.remove('show');
-    toast('Add to home screen first');
-    return;
-  }
-
   try {
-    const keyRes = await fetch(API_BASE + '/api/push/key');
-    const { key } = await keyRes.json();
-    if (!key){ toast('Notifications not available yet'); return; }
-
+    const { key } = await (await fetch(API_BASE + '/api/push/key')).json();
+    if (!key){ toast('Not available yet'); return; }
     const permission = await Notification.requestPermission();
     localStorage.setItem(PUSH.asked, '1');
-    $('nudge').classList.remove('show');
     if (permission !== 'granted'){ toast('No notifications then'); return; }
 
     const reg = await navigator.serviceWorker.ready;
     const sub = await reg.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlB64ToUint8(key),
+      userVisibleOnly: true, applicationServerKey: urlB64ToUint8(key),
     });
-
     await fetch(API_BASE + '/api/push/subscribe', {
       method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({
-        endpoint: sub.endpoint,
-        utc_offset_minutes: new Date().getTimezoneOffset(),
-      }),
+      body: JSON.stringify({ endpoint: sub.endpoint,
+                             utc_offset_minutes: new Date().getTimezoneOffset() }),
     });
     localStorage.setItem(PUSH.on, '1');
-    toast('You\u2019ll get tomorrow\u2019s question at 9am');
-  } catch {
-    toast('Could not set up notifications');
-  }
+    toast('Tomorrow at 9am');
+  } catch { toast('Could not set that up'); }
 }
 
-$('nudgeYes').addEventListener('click', enablePush);
-$('nudgeNo').addEventListener('click', () => {
-  localStorage.setItem(PUSH.asked, '1');
-  $('nudge').classList.remove('show');
-});
-
 /* ===================================================================
-   ARCHIVE
+   ARCHIVE — the button only exists once there is history
    =================================================================== */
 let loaded = false;
-document.querySelector('.arch').addEventListener('toggle', async e => {
-  if (!e.target.open || loaded) return;
-  loaded = true;
+$('archToggle').addEventListener('click', async () => {
   const list = $('past');
-  list.innerHTML = '<li>Loading\u2026</li>';
+  list.classList.toggle('show');
+  if (!list.classList.contains('show') || loaded) return;
+  loaded = true;
   try {
-    const r = await fetch(API_BASE + '/api/archive?days=7');
-    const data = await r.json();
+    const data = await (await fetch(API_BASE + '/api/archive?days=7')).json();
     const qs = data.questions || [];
-    list.innerHTML = qs.length ? qs.map(q => {
+    list.innerHTML = qs.map(q => {
       const pa = q.total >= 10 ? Math.round(q.tally[0]/q.total*100) : null;
       return '<li><span>' + esc(q.text) + '</span><span class="s">' +
-             (pa === null ? '\u2014' : pa + ' / ' + (100-pa)) + '</span></li>';
-    }).join('') : '<li>Nothing here yet \u2014 this fills in daily.</li>';
-  } catch { list.innerHTML = '<li>Archive unavailable.</li>'; }
+             (pa === null ? '—' : pa + ' / ' + (100-pa)) + '</span></li>';
+    }).join('');
+  } catch { list.innerHTML = '<li>Unavailable right now.</li>'; }
 });
+
+async function checkArchive(){
+  if (PREVIEW){ $('archToggle').classList.add('show'); return; }
+  try {
+    const data = await (await fetch(API_BASE + '/api/archive?days=7')).json();
+    if ((data.questions || []).length) $('archToggle').classList.add('show');
+  } catch { /* leave it hidden */ }
+}
 
 /* ===================================================================
    BOOT
    =================================================================== */
 (async function init(){
-  paintPanel();
-  paintRoom();
+  if (PREVIEW){
+    S = previewState(PREVIEW);
+    previewHist = previewHistory(PREVIEW);
+    paintQuestion();
+    paintOffice();
+    if (S.choice !== null) reveal();
+    $('archToggle').classList.add('show');
+    return;
+  }
 
   try {
     const rc = myRoom();
@@ -695,7 +723,8 @@ document.querySelector('.arch').addEventListener('toggle', async e => {
   }
 
   paintQuestion();
-  paintRoom();
+  paintOffice();
+  checkArchive();
 
   const prior = voted()[S.qid];
   if (prior === 0 || prior === 1){
