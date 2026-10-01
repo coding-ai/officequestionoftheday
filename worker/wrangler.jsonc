@@ -51,9 +51,9 @@
 	// on your Cloudflare account — deploying with it too early fails with
 	// "Could not find zone". Add it in stage 6 by uncommenting:
 	//
-	// "routes": [
-	//   { "pattern": "api.officequestionoftheday.com", "custom_domain": true }
-	// ],
+	"routes": [
+	   { "pattern": "api.officequestionoftheday.com", "custom_domain": true }
+	 ],
 	"observability": {
 		"enabled": true
 	}

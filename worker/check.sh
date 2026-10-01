@@ -6,6 +6,9 @@
 # secrets on the wrong Worker, API_BASE set in two of the three places.
 
 set -uo pipefail
+
+# Run from anywhere: every path below is relative to this script's own folder.
+cd "$(dirname "${BASH_SOURCE[0]}")" || exit 1
 ok=0; bad=0; warn=0
 pass(){ printf '  \033[32m✓\033[0m %s\n' "$1"; ok=$((ok+1)); }
 fail(){ printf '  \033[31m✗\033[0m %s\n' "$1"; bad=$((bad+1)); }
